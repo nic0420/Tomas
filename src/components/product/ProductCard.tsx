@@ -1,4 +1,4 @@
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Heart, Eye } from 'lucide-react';
 import { type Product, useCartStore } from '../../store/useCartStore';
 import { calculateARSPrice, formatCurrency } from '../../lib/utils';
 
@@ -12,51 +12,63 @@ export function ProductCard({ product }: ProductCardProps) {
   const finalPriceArs = calculateARSPrice(product.precio_usd);
 
   return (
-    <div className="bg-white border-2 border-transparent rounded-sm overflow-hidden hover:shadow-xl hover:border-brand-gold transition-all group flex flex-col h-full relative">
-      <div className="relative aspect-square overflow-hidden bg-white p-4 flex items-center justify-center border-b border-gray-100">
+    <div className="bg-white rounded-md overflow-hidden hover:shadow-2xl transition-all duration-300 group flex flex-col h-full relative border border-gray-100 hover:border-brand-gold/30">
+      
+      {/* Badges */}
+      <div className="absolute top-3 left-3 z-10 flex flex-col gap-1">
+        <span className="bg-brand-gold text-white text-[10px] font-black tracking-widest uppercase px-2 py-0.5 rounded-sm shadow-sm">
+          NOVO
+        </span>
+      </div>
+      <div className="absolute top-3 right-3 z-10 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0">
+        <button className="w-8 h-8 bg-white text-gray-400 hover:text-brand-green hover:bg-gray-50 rounded-full flex items-center justify-center shadow-md transition-colors">
+          <Heart size={16} />
+        </button>
+        <button className="w-8 h-8 bg-white text-gray-400 hover:text-brand-green hover:bg-gray-50 rounded-full flex items-center justify-center shadow-md transition-colors">
+          <Eye size={16} />
+        </button>
+      </div>
+
+      {/* Image container */}
+      <div className="relative aspect-square overflow-hidden bg-white p-6 flex items-center justify-center cursor-pointer">
         <img
           src={product.imagen_url}
           alt={product.nombre_producto}
-          className="object-contain max-h-full group-hover:scale-110 transition-transform duration-500"
+          className="object-contain max-h-full group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
         />
-        {/* Category Badge */}
-        <div className="absolute top-2 left-2">
-          <span className="bg-brand-green text-brand-gold text-[10px] font-black tracking-wider uppercase px-2 py-1 rounded-sm shadow-sm">
-            {product.categoria}
-          </span>
+        
+        {/* Quick Add to Cart button (Arsenal style overlay) */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out z-20">
+          <button
+            onClick={(e) => { e.preventDefault(); addToCart(product); }}
+            className="w-full bg-brand-green hover:bg-brand-dark text-white font-bold uppercase tracking-wider text-xs py-3 rounded-sm flex items-center justify-center gap-2 shadow-lg transition-colors"
+          >
+            <ShoppingCart size={16} />
+            COMPRAR AGORA
+          </button>
         </div>
       </div>
       
-      <div className="p-4 flex flex-col flex-1">
-        <h3 className="text-gray-800 font-bold line-clamp-2 mb-2 text-sm group-hover:text-brand-green transition-colors">
+      {/* Info container */}
+      <div className="p-4 flex flex-col flex-1 text-center bg-gray-50/50">
+        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">
+          {product.categoria}
+        </span>
+        <h3 className="text-gray-700 font-semibold line-clamp-2 mb-3 text-sm group-hover:text-brand-green transition-colors leading-snug cursor-pointer">
           {product.nombre_producto}
         </h3>
         
-        <div className="mt-auto flex flex-col">
-          <div className="flex flex-col">
-            <span className="text-[11px] text-gray-400 line-through">
-              USD {product.precio_usd.toFixed(2)}
-            </span>
-            <span className="text-brand-green font-black text-xl leading-none mt-1">
+        <div className="mt-auto flex flex-col items-center">
+          <div className="flex flex-col items-center">
+            <span className="text-brand-green font-black text-xl leading-none">
               {formatCurrency(finalPriceArs)}
             </span>
-            <span className="text-[10px] text-brand-gold font-bold mt-1 tracking-wide uppercase">
-              12x sin interés
+            <span className="text-[11px] text-gray-500 font-medium mt-1">
+              ou <span className="text-brand-gold font-bold">12x</span> de <span className="font-bold text-gray-700">{formatCurrency(finalPriceArs / 12)}</span>
             </span>
           </div>
         </div>
-      </div>
-
-      {/* Floating Add to Cart Button on Hover */}
-      <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0">
-        <button
-          onClick={(e) => { e.preventDefault(); addToCart(product); }}
-          className="bg-brand-gold hover:bg-yellow-600 text-white p-3 rounded-full shadow-lg transition-colors border-2 border-white"
-          title="Agregar al carrito"
-        >
-          <ShoppingCart className="w-5 h-5" />
-        </button>
       </div>
     </div>
   );

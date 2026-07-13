@@ -7,6 +7,7 @@ import { CartDrawer } from './components/cart/CartDrawer';
 import { HeroSlider } from './components/home/HeroSlider';
 import { BannersGrid } from './components/home/BannersGrid';
 import { BrandsCarousel } from './components/home/BrandsCarousel';
+import { FeaturesBar } from './components/home/FeaturesBar';
 
 function App() {
   const { fetchProducts } = useProductStore();
@@ -17,7 +18,7 @@ function App() {
   }, [fetchProducts]);
 
   return (
-    <div className="min-h-screen bg-brand-light flex flex-col font-sans">
+    <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       <Header />
       <CategoryNav 
         selectedCategory={selectedCategory} 
@@ -26,6 +27,7 @@ function App() {
       
       <main className="flex-1 flex flex-col">
         {selectedCategory === null && <HeroSlider />}
+        {selectedCategory === null && <FeaturesBar />}
         
         <div className="container mx-auto px-4 py-8 flex-1">
           {selectedCategory === null && <BannersGrid />}
@@ -36,44 +38,52 @@ function App() {
         </div>
       </main>
 
-      <footer className="bg-brand-dark pt-12 pb-6 text-gray-400 text-sm border-t-4 border-brand-green">
+      <footer className="bg-[#111111] pt-16 pb-8 text-gray-400 text-[13px]">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8 border-b border-gray-800 pb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 border-b border-gray-800 pb-12">
             <div>
-              <h3 className="text-brand-gold font-black mb-4 uppercase tracking-widest text-lg">Tommy Guns</h3>
-              <p className="leading-relaxed">Especialistas en equipamiento táctico, Airsoft, Paintball y Supervivencia. Envíos a todo el país con la mejor calidad.</p>
+              <h3 className="text-white font-black mb-6 uppercase tracking-widest text-lg">Tommy Guns</h3>
+              <p className="leading-relaxed">Especialistas em Airsoft, Paintball e Sobrevivência. Entregamos em todo o país com a melhor qualidade e segurança.</p>
             </div>
             <div>
-              <h3 className="text-white font-bold mb-4 uppercase">Atención al Cliente</h3>
-              <ul className="space-y-2">
-                <li><a href="#" className="hover:text-brand-gold transition-colors">Contacto</a></li>
-                <li><a href="#" className="hover:text-brand-gold transition-colors">Garantías y Devoluciones</a></li>
-                <li><a href="#" className="hover:text-brand-gold transition-colors">Preguntas Frecuentes</a></li>
+              <h3 className="text-white font-bold mb-6 uppercase tracking-wider text-sm">Institucional</h3>
+              <ul className="space-y-3">
+                <li><a href="#" className="hover:text-brand-gold transition-colors">Quem Somos</a></li>
+                <li><a href="#" className="hover:text-brand-gold transition-colors">Política de Privacidade</a></li>
+                <li><a href="#" className="hover:text-brand-gold transition-colors">Termos e Condições</a></li>
+                <li><a href="#" className="hover:text-brand-gold transition-colors">Trocas e Devoluções</a></li>
               </ul>
             </div>
             <div>
-              <h3 className="text-white font-bold mb-4 uppercase">Mi Cuenta</h3>
-              <ul className="space-y-2">
-                <li><a href="#" className="hover:text-brand-gold transition-colors">Iniciar Sesión</a></li>
-                <li><a href="#" className="hover:text-brand-gold transition-colors">Registrarse</a></li>
-                <li><a href="#" className="hover:text-brand-gold transition-colors">Mis Pedidos</a></li>
+              <h3 className="text-white font-bold mb-6 uppercase tracking-wider text-sm">Minha Conta</h3>
+              <ul className="space-y-3">
+                <li><a href="#" className="hover:text-brand-gold transition-colors">Meus Pedidos</a></li>
+                <li><a href="#" className="hover:text-brand-gold transition-colors">Meus Endereços</a></li>
+                <li><a href="#" className="hover:text-brand-gold transition-colors">Minhas Informações</a></li>
               </ul>
             </div>
             <div>
-              <h3 className="text-white font-bold mb-4 uppercase">Redes y Contacto</h3>
+              <h3 className="text-white font-bold mb-6 uppercase tracking-wider text-sm">Atendimento</h3>
               <ul className="space-y-4">
-                <li>
-                  <a href="https://www.instagram.com/tommygunsctes" target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-brand-gold transition-colors text-white bg-white/5 p-2 rounded-sm inline-flex">
+                <li className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-brand-green flex items-center justify-center text-white">
+                    <span className="font-black text-xs">@</span>
+                  </div>
+                  <a href="https://www.instagram.com/tommygunsctes" target="_blank" rel="noreferrer" className="hover:text-brand-gold transition-colors font-semibold text-white">
                     @tommygunsctes
                   </a>
                 </li>
-                <li>ventas@tommyguns.com</li>
-                <li>+54 9 11 1234-5678</li>
+                <li>Email: vendas@tommyguns.com</li>
+                <li>Telefone: +54 9 11 1234-5678</li>
+                <li>Horário: Seg a Sex, 9h às 18h</li>
               </ul>
             </div>
           </div>
-          <div className="text-center font-medium">
-            <p>© {new Date().getFullYear()} Tommy Guns. Todos los derechos reservados.</p>
+          <div className="text-center font-medium flex flex-col md:flex-row justify-between items-center gap-4">
+            <p>© {new Date().getFullYear()} Tommy Guns. Todos os direitos reservados.</p>
+            <div className="text-brand-gold font-bold tracking-widest uppercase">
+              TOMMY GUNS
+            </div>
           </div>
         </div>
       </footer>

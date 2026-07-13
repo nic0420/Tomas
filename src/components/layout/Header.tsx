@@ -1,4 +1,4 @@
-import { ShoppingCart, Search, Menu, User } from 'lucide-react';
+import { ShoppingCart, Search, Menu, User, Phone, Mail } from 'lucide-react';
 import { useCartStore } from '../../store/useCartStore';
 
 export function Header() {
@@ -6,77 +6,92 @@ export function Header() {
   const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
-    <header className="w-full bg-white border-b border-gray-200">
-      {/* Top Bar */}
-      <div className="bg-brand-dark text-gray-300 text-xs py-1.5 hidden md:block border-b border-brand-gold/20">
+    <header className="w-full bg-white font-sans">
+      {/* Top Bar - Identical to Arsenal Sports top bar */}
+      <div className="bg-[#f5f5f5] text-[#666] text-[11px] py-1 border-b border-[#eaeaea] hidden md:block">
         <div className="container mx-auto px-4 flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <a href="https://www.instagram.com/tommygunsctes" target="_blank" rel="noreferrer" className="hover:text-brand-gold flex items-center gap-1 transition-colors">
-              @tommygunsctes
-            </a>
-            <a href="#" className="hover:text-brand-gold transition-colors">Marcas</a>
+          <div className="flex items-center gap-6">
+            <span className="flex items-center gap-1 font-semibold uppercase tracking-wider">
+              BEM-VINDO A TOMMY GUNS
+            </span>
           </div>
-          <div className="flex items-center gap-4">
-            <a href="#" className="hover:text-brand-gold flex items-center gap-1 transition-colors"><User size={12}/> Fazer Login</a>
-            <span className="text-gray-600">/</span>
-            <a href="#" className="hover:text-brand-gold transition-colors">Cadastre-se</a>
+          <div className="flex items-center gap-4 font-semibold uppercase tracking-wider">
+            <a href="#" className="hover:text-brand-gold flex items-center gap-1 transition-colors"><User size={12}/> MINHA CONTA</a>
+            <span className="text-gray-300">|</span>
+            <a href="#" className="hover:text-brand-gold transition-colors flex items-center gap-1"><Phone size={12}/> CONTATO</a>
+            <span className="text-gray-300">|</span>
+            <a href="https://www.instagram.com/tommygunsctes" target="_blank" rel="noreferrer" className="hover:text-brand-gold flex items-center gap-1 transition-colors">
+              INSTAGRAM
+            </a>
           </div>
         </div>
       </div>
 
       {/* Main Header */}
-      <div className="container mx-auto px-4 py-4 md:py-6 flex items-center justify-between gap-4">
+      <div className="container mx-auto px-4 py-5 flex items-center justify-between gap-8">
         
         {/* Mobile Menu & Logo */}
         <div className="flex items-center gap-4">
-          <button className="lg:hidden text-brand-green hover:text-brand-gold transition-colors">
-            <Menu className="w-6 h-6" />
+          <button className="lg:hidden text-gray-800 hover:text-brand-gold transition-colors">
+            <Menu className="w-7 h-7" />
           </button>
           
-          <a href="/" className="flex items-center gap-3">
-            {/* The user will drop their logo in public/logo.jpg. This img tag will load it if it exists. */}
-            <img src="/logo.jpg" alt="Tommy Guns Logo" className="h-12 w-auto object-contain bg-brand-green p-1 rounded-sm hidden md:block" onError={(e) => {
-              // Fallback text if image not found
+          <a href="/" className="flex items-center">
+            {/* The user will drop their logo in public/logo.jpg */}
+            <img src="/logo.jpg" alt="Tommy Guns" className="h-16 w-auto object-contain hidden md:block" onError={(e) => {
               (e.target as HTMLElement).style.display = 'none';
               const nextSibling = (e.target as HTMLElement).nextElementSibling;
               if (nextSibling) (nextSibling as HTMLElement).classList.remove('hidden');
             }}/>
             <div className="hidden flex-col leading-none">
-              <span className="text-brand-green text-3xl font-black tracking-tighter uppercase" style={{ textShadow: '1px 1px 0px #c29b62' }}>TOMMY</span>
-              <span className="text-brand-gold text-xl font-black tracking-widest uppercase">GUNS</span>
+              <span className="text-brand-green text-4xl font-black tracking-tighter uppercase" style={{ textShadow: '2px 2px 0px #c29b62' }}>TOMMY</span>
+              <span className="text-brand-gold text-2xl font-black tracking-widest uppercase">GUNS</span>
             </div>
           </a>
         </div>
 
-        {/* Search Bar - Hidden on small screens */}
-        <div className="hidden lg:flex flex-1 max-w-2xl mx-8 relative group">
-          <input
-            type="text"
-            placeholder="Buscar armas, accesorios..."
-            className="w-full bg-gray-50 border border-gray-300 rounded-sm py-2.5 pl-4 pr-12 text-sm text-gray-800 focus:outline-none focus:border-brand-gold focus:bg-white transition-all shadow-sm group-hover:shadow"
-          />
-          <button className="absolute right-0 top-0 h-full px-5 bg-brand-green text-brand-chrome rounded-r-sm hover:bg-[#1f291c] transition-colors">
-            <Search className="w-5 h-5" />
-          </button>
+        {/* Search Bar - Huge like Arsenal */}
+        <div className="hidden lg:flex flex-1 max-w-3xl relative">
+          <div className="flex w-full border-2 border-brand-green rounded-full overflow-hidden">
+            <input
+              type="text"
+              placeholder="Digite o que você procura..."
+              className="w-full bg-white py-3 px-5 text-[13px] text-gray-700 focus:outline-none font-medium"
+            />
+            <button className="bg-brand-green text-white px-8 hover:bg-brand-dark transition-colors flex items-center justify-center font-bold text-sm uppercase tracking-wide">
+              Buscar
+            </button>
+          </div>
         </div>
 
-        {/* Cart Button */}
-        <div className="flex items-center">
+        {/* Contact & Cart */}
+        <div className="flex items-center gap-8">
+          
+          {/* Contact (Desktop only) */}
+          <div className="hidden xl:flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full border-2 border-brand-gold flex items-center justify-center text-brand-green">
+              <Phone className="w-5 h-5" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Atendimento</span>
+              <span className="text-sm font-black text-brand-dark">+54 9 11 1234-5678</span>
+            </div>
+          </div>
+
+          {/* Cart Button */}
           <button
             onClick={toggleCart}
-            className="relative flex items-center gap-2 p-2 text-brand-green hover:text-brand-gold transition-colors group"
+            className="flex items-center gap-3 group"
           >
-            <div className="relative">
-              <ShoppingCart className="w-7 h-7" />
-              {totalItems > 0 && (
-                <span className="absolute -top-1 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-brand-gold text-[10px] font-bold text-white shadow-sm border border-white">
-                  {totalItems}
-                </span>
-              )}
+            <div className="relative w-11 h-11 flex items-center justify-center bg-gray-100 rounded-full group-hover:bg-brand-gold transition-colors">
+              <ShoppingCart className="w-5 h-5 text-brand-green group-hover:text-white transition-colors" />
+              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-brand-green text-[10px] font-bold text-white shadow-sm border border-white">
+                {totalItems}
+              </span>
             </div>
-            <div className="hidden md:flex flex-col items-start leading-none ml-1">
-              <span className="text-xs text-gray-500 font-medium group-hover:text-brand-gold transition-colors">Mi Carrito</span>
-              <span className="text-sm font-black text-brand-dark">{totalItems} Item(s)</span>
+            <div className="hidden md:flex flex-col items-start leading-none text-left">
+              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Meu Carrinho</span>
+              <span className="text-sm font-black text-brand-dark">{totalItems > 0 ? `${totalItems} itens` : 'Vazio'}</span>
             </div>
           </button>
         </div>
