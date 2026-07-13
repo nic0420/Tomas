@@ -7,8 +7,16 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Open Sans', 'Roboto', 'sans-serif'],
       },
+      colors: {
+        brand: {
+          blue: '#005699', // Classic retail blue
+          dark: '#1a1a1a',
+          orange: '#ff6b00', // Accent orange
+          light: '#f5f5f5',
+        }
+      }
     },
   },
   plugins: [],

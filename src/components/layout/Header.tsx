@@ -1,4 +1,4 @@
-import { ShoppingCart, Search, Menu } from 'lucide-react';
+import { ShoppingCart, Search, Menu, User, Phone } from 'lucide-react';
 import { useCartStore } from '../../store/useCartStore';
 
 export function Header() {
@@ -6,44 +6,69 @@ export function Header() {
   const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+    <header className="w-full bg-white border-b border-gray-200">
+      {/* Top Bar */}
+      <div className="bg-brand-dark text-gray-300 text-xs py-1.5 hidden md:block">
+        <div className="container mx-auto px-4 flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <a href="#" className="hover:text-white flex items-center gap-1"><Phone size={12}/> Contato</a>
+            <a href="#" className="hover:text-white">Marcas</a>
+          </div>
+          <div className="flex items-center gap-4">
+            <a href="#" className="hover:text-white flex items-center gap-1"><User size={12}/> Fazer Login</a>
+            <span>/</span>
+            <a href="#" className="hover:text-white">Cadastre-se</a>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Header */}
+      <div className="container mx-auto px-4 py-4 md:py-6 flex items-center justify-between gap-4">
         
         {/* Mobile Menu & Logo */}
         <div className="flex items-center gap-4">
-          <button className="lg:hidden text-zinc-400 hover:text-white">
+          <button className="lg:hidden text-gray-600 hover:text-brand-blue">
             <Menu className="w-6 h-6" />
           </button>
-          <div className="text-xl font-bold tracking-tighter text-white uppercase flex items-center gap-2">
-            <span className="w-8 h-8 bg-emerald-600 rounded flex items-center justify-center text-zinc-950">
-              A
-            </span>
-            <span>Arsenal</span>
-          </div>
+          
+          <a href="/" className="text-2xl font-black tracking-tight text-brand-dark uppercase flex flex-col leading-none">
+            <span className="text-brand-blue text-3xl">ARSENAL</span>
+            <span className="text-brand-orange text-lg text-right">TOMAS</span>
+          </a>
         </div>
 
         {/* Search Bar - Hidden on small screens */}
-        <div className="hidden lg:flex flex-1 max-w-md mx-8 relative">
+        <div className="hidden lg:flex flex-1 max-w-2xl mx-8 relative">
           <input
             type="text"
             placeholder="Buscar productos..."
-            className="w-full bg-zinc-900 border border-zinc-800 rounded-full py-2 pl-10 pr-4 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 transition-colors"
+            className="w-full bg-gray-100 border border-gray-300 rounded-sm py-2.5 pl-4 pr-12 text-sm text-gray-800 focus:outline-none focus:border-brand-blue focus:bg-white transition-colors"
           />
-          <Search className="w-4 h-4 text-zinc-500 absolute left-4 top-1/2 -translate-y-1/2" />
+          <button className="absolute right-0 top-0 h-full px-4 bg-brand-blue text-white rounded-r-sm hover:bg-blue-700 transition-colors">
+            <Search className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Cart Button */}
-        <button
-          onClick={toggleCart}
-          className="relative p-2 text-zinc-400 hover:text-white transition-colors"
-        >
-          <ShoppingCart className="w-6 h-6" />
-          {totalItems > 0 && (
-            <span className="absolute top-0 right-0 -mt-1 -mr-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-zinc-950">
-              {totalItems}
-            </span>
-          )}
-        </button>
+        <div className="flex items-center">
+          <button
+            onClick={toggleCart}
+            className="relative flex items-center gap-2 p-2 text-gray-700 hover:text-brand-blue transition-colors group"
+          >
+            <div className="relative">
+              <ShoppingCart className="w-7 h-7" />
+              {totalItems > 0 && (
+                <span className="absolute -top-1 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-brand-orange text-[10px] font-bold text-white shadow-sm">
+                  {totalItems}
+                </span>
+              )}
+            </div>
+            <div className="hidden md:flex flex-col items-start leading-none ml-1">
+              <span className="text-xs text-gray-500 font-medium">Meu Carrinho</span>
+              <span className="text-sm font-bold">{totalItems} Item(s)</span>
+            </div>
+          </button>
+        </div>
 
       </div>
     </header>
