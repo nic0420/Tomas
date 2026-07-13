@@ -1,5 +1,5 @@
 import { ShoppingCart } from 'lucide-react';
-import { Product, useCartStore } from '../../store/useCartStore';
+import { type Product, useCartStore } from '../../store/useCartStore';
 import { calculateARSPrice, formatCurrency } from '../../lib/utils';
 
 interface ProductCardProps {

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import Papa from "papaparse";
 import { GOOGLE_SHEETS_CSV_URL } from "../config/constants";
-import { Product } from "./useCartStore";
+import type { Product } from "./useCartStore";
 
 interface ProductState {
   products: Product[];
