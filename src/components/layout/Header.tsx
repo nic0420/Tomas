@@ -1,4 +1,4 @@
-import { ShoppingCart, Search, Menu, User, Phone, Mail } from 'lucide-react';
+import { ShoppingCart, Menu, User, Phone } from 'lucide-react';
 import { useCartStore } from '../../store/useCartStore';
 
 export function Header() {
