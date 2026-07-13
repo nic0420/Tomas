@@ -7,7 +7,6 @@ import { CartDrawer } from './components/cart/CartDrawer';
 import { HeroSlider } from './components/home/HeroSlider';
 import { BannersGrid } from './components/home/BannersGrid';
 import { BrandsCarousel } from './components/home/BrandsCarousel';
-import { Instagram } from 'lucide-react';
 
 function App() {
   const { fetchProducts } = useProductStore();
@@ -65,7 +64,7 @@ function App() {
               <ul className="space-y-4">
                 <li>
                   <a href="https://www.instagram.com/tommygunsctes" target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-brand-gold transition-colors text-white bg-white/5 p-2 rounded-sm inline-flex">
-                    <Instagram size={20} className="text-brand-gold" /> @tommygunsctes
+                    @tommygunsctes
                   </a>
                 </li>
                 <li>ventas@tommyguns.com</li>

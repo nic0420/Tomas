@@ -1,4 +1,4 @@
-import { ShoppingCart, Search, Menu, User, Instagram } from 'lucide-react';
+import { ShoppingCart, Search, Menu, User } from 'lucide-react';
 import { useCartStore } from '../../store/useCartStore';
 
 export function Header() {
@@ -12,7 +12,7 @@ export function Header() {
         <div className="container mx-auto px-4 flex justify-between items-center">
           <div className="flex items-center gap-4">
             <a href="https://www.instagram.com/tommygunsctes" target="_blank" rel="noreferrer" className="hover:text-brand-gold flex items-center gap-1 transition-colors">
-              <Instagram size={12}/> @tommygunsctes
+              @tommygunsctes
             </a>
             <a href="#" className="hover:text-brand-gold transition-colors">Marcas</a>
           </div>
