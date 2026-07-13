@@ -9,26 +9,25 @@ interface CategoryNavProps {
 export function CategoryNav({ selectedCategory, onSelectCategory }: CategoryNavProps) {
   const { categories } = useProductStore();
 
-  // Arsenal Sports only shows a few main categories in the top nav
   const mainCategories = categories.slice(0, 6);
 
   return (
-    <nav className="w-full bg-white border-b border-gray-200 shadow-sm relative z-30 hidden md:block">
+    <nav className="w-full bg-brand-green border-b-4 border-brand-gold shadow-md relative z-30 hidden md:block">
       <div className="container mx-auto px-4 flex">
         
         {/* Todas las Categorias Dropdown trigger */}
-        <div className="relative bg-brand-blue text-white flex items-center px-4 py-3 font-bold gap-2 cursor-pointer hover:bg-blue-700 transition-colors">
+        <div className="relative bg-brand-gold text-white flex items-center px-6 py-3 font-black gap-2 cursor-pointer hover:brightness-110 transition-all shadow-inner">
           <Menu className="w-5 h-5" />
-          <span>Toda Loja</span>
+          <span className="tracking-wide uppercase">Catálogo</span>
         </div>
 
         {/* Horizontal Links */}
-        <ul className="flex items-center flex-1 ml-4 gap-6 whitespace-nowrap text-sm font-bold text-gray-700 uppercase">
+        <ul className="flex items-center flex-1 ml-6 gap-6 whitespace-nowrap text-sm font-bold text-brand-chrome uppercase">
           <li>
             <button
               onClick={() => onSelectCategory(null)}
-              className={`h-full transition-colors hover:text-brand-blue ${
-                selectedCategory === null ? 'text-brand-blue' : ''
+              className={`h-full py-3 transition-colors hover:text-brand-gold tracking-wide ${
+                selectedCategory === null ? 'text-brand-gold border-b-2 border-brand-gold' : ''
               }`}
             >
               INICIO
@@ -38,8 +37,8 @@ export function CategoryNav({ selectedCategory, onSelectCategory }: CategoryNavP
             <li key={category}>
               <button
                 onClick={() => onSelectCategory(category)}
-                className={`h-full py-3 transition-colors hover:text-brand-blue ${
-                  selectedCategory === category ? 'text-brand-blue' : ''
+                className={`h-full py-3 transition-colors hover:text-brand-gold tracking-wide ${
+                  selectedCategory === category ? 'text-brand-gold border-b-2 border-brand-gold' : ''
                 }`}
               >
                 {category}
@@ -50,7 +49,7 @@ export function CategoryNav({ selectedCategory, onSelectCategory }: CategoryNavP
             <li>
               <button
                 onClick={() => onSelectCategory(categories[6])}
-                className="h-full py-3 transition-colors text-brand-blue hover:text-blue-700"
+                className="h-full py-3 transition-colors text-brand-gold hover:text-white"
               >
                 Ver más...
               </button>

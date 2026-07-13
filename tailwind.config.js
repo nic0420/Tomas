@@ -11,10 +11,11 @@ export default {
       },
       colors: {
         brand: {
-          blue: '#005699', // Classic retail blue
-          dark: '#1a1a1a',
-          orange: '#ff6b00', // Accent orange
-          light: '#f5f5f5',
+          green: '#2c3726', // Dark olive camo green
+          gold: '#c29b62', // Tan/Gold from the rifles
+          chrome: '#f0f0f0', // Silver/Chrome accent
+          dark: '#161a14', // Very dark green/black
+          light: '#f4f5f3', // Off-white with green tint
         }
       }
     },
