@@ -6,6 +6,8 @@ export interface Product {
   categoria: string;
   imagen_url: string;
   precio_usd: number;
+  descripcion?: string;
+  caracteristicas?: string;
 }
 
 export interface CartItem {

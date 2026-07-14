@@ -6,19 +6,24 @@ import type { Product } from "./useCartStore";
 interface ProductState {
   products: Product[];
   categories: string[];
-  loading: boolean;
+  isLoading: boolean;
   error: string | null;
   dolarBlue: number;
+  selectedProduct: Product | null;
   fetchProducts: () => Promise<void>;
   fetchDolarBlue: () => Promise<void>;
+  setSelectedProduct: (product: Product | null) => void;
 }
 
 export const useProductStore = create<ProductState>((set) => ({
   products: [],
   categories: [],
-  loading: false,
+  isLoading: false,
   error: null,
-  dolarBlue: 1000, // Fallback if API fails
+  dolarBlue: 1100, // Default fallback
+  selectedProduct: null,
+
+  setSelectedProduct: (product) => set({ selectedProduct: product }),
 
   fetchDolarBlue: async () => {
     try {

@@ -9,7 +9,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCartStore();
-  const { dolarBlue } = useProductStore();
+  const { dolarBlue, setSelectedProduct } = useProductStore();
 
   const finalPriceArs = calculateARSPrice(product.precio_usd, dolarBlue);
 
@@ -32,12 +32,14 @@ export function ProductCard({ product }: ProductCardProps) {
       </div>
 
       {/* Image container */}
-      <div className="relative aspect-square overflow-hidden bg-white p-6 flex items-center justify-center cursor-pointer">
-        <img
-          src={product.imagen_url}
+      <div 
+        className="relative pt-[100%] bg-white overflow-hidden cursor-pointer"
+        onClick={() => setSelectedProduct(product)}
+      >
+        <img 
+          src={product.imagen_url} 
           alt={product.nombre_producto}
-          className="object-contain max-h-full group-hover:scale-105 transition-transform duration-500"
-          loading="lazy"
+          className="absolute top-0 left-0 w-full h-full object-contain p-6 transform group-hover:scale-110 transition-transform duration-500"
         />
         
         {/* Quick Add to Cart button (Arsenal style overlay) */}
@@ -53,11 +55,14 @@ export function ProductCard({ product }: ProductCardProps) {
       </div>
       
       {/* Info container */}
-      <div className="p-4 flex flex-col flex-1 text-center bg-gray-50/50">
-        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">
-          {product.categoria}
-        </span>
-        <h3 className="text-gray-700 font-semibold line-clamp-2 mb-3 text-sm group-hover:text-brand-green transition-colors leading-snug cursor-pointer">
+      <div className="p-5 flex flex-col flex-1 bg-white border-t border-gray-50 group-hover:bg-gray-50/50 transition-colors">
+        <div className="mb-2">
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{product.categoria}</span>
+        </div>
+        <h3 
+          className="text-sm font-semibold text-gray-800 leading-snug mb-4 flex-1 hover:text-brand-green transition-colors cursor-pointer"
+          onClick={() => setSelectedProduct(product)}
+        >
           {product.nombre_producto}
         </h3>
         

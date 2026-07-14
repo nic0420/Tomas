@@ -9,10 +9,16 @@ import { BannersGrid } from './components/home/BannersGrid';
 import { BrandsCarousel } from './components/home/BrandsCarousel';
 import { FeaturesBar } from './components/home/FeaturesBar';
 import { FloatingSocial } from './components/layout/FloatingSocial';
+import { ProductDetail } from './components/product/ProductDetail';
 
 function App() {
-  const { fetchProducts, fetchDolarBlue } = useProductStore();
+  const { fetchProducts, fetchDolarBlue, selectedProduct, setSelectedProduct } = useProductStore();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  const handleSelectCategory = (cat: string | null) => {
+    setSelectedCategory(cat);
+    setSelectedProduct(null);
+  };
 
   useEffect(() => {
     fetchProducts();
@@ -24,20 +30,26 @@ function App() {
       <Header />
       <CategoryNav 
         selectedCategory={selectedCategory} 
-        onSelectCategory={setSelectedCategory} 
+        onSelectCategory={handleSelectCategory} 
       />
       
       <main className="flex-1 flex flex-col">
-        {selectedCategory === null && <HeroSlider />}
-        {selectedCategory === null && <FeaturesBar />}
-        
-        <div className="container mx-auto px-4 py-8 flex-1">
-          {selectedCategory === null && <BannersGrid />}
-          
-          <ProductGrid selectedCategory={selectedCategory} />
-          
-          {selectedCategory === null && <BrandsCarousel />}
-        </div>
+        {selectedProduct ? (
+          <ProductDetail />
+        ) : (
+          <>
+            {selectedCategory === null && <HeroSlider />}
+            {selectedCategory === null && <FeaturesBar />}
+            
+            <div className="container mx-auto px-4 py-8 flex-1">
+              {selectedCategory === null && <BannersGrid />}
+              
+              <ProductGrid selectedCategory={selectedCategory} />
+              
+              {selectedCategory === null && <BrandsCarousel />}
+            </div>
+          </>
+        )}
       </main>
 
       <footer className="bg-[#111111] pt-16 pb-8 text-gray-400 text-[13px]">
