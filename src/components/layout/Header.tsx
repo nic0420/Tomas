@@ -61,6 +61,8 @@ export function Header() {
             <input
               type="text"
               placeholder="Escribe lo que buscas..."
+              value={useProductStore((state) => state.searchQuery)}
+              onChange={(e) => useProductStore.getState().setSearchQuery(e.target.value)}
               className="w-full bg-white py-3 px-5 text-[13px] text-gray-700 focus:outline-none font-medium"
             />
             <button className="bg-brand-green text-white px-8 hover:bg-brand-dark transition-colors flex items-center justify-center font-bold text-sm uppercase tracking-wide">

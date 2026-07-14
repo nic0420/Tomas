@@ -3,6 +3,7 @@ import { ShoppingCart, ShieldCheck, Truck, ChevronLeft, CreditCard } from 'lucid
 import { useCartStore } from '../../store/useCartStore';
 import { useProductStore } from '../../store/useProductStore';
 import { calculateARSPrice, formatCurrency } from '../../lib/utils';
+import { ProductCard } from './ProductCard';
 
 export function ProductDetail() {
   const { selectedProduct, setSelectedProduct, dolarBlue } = useProductStore();
@@ -15,13 +16,12 @@ export function ProductDetail() {
   const finalPriceArs = calculateARSPrice(selectedProduct.precio_usd, dolarBlue);
 
   const handleAddToCart = () => {
-    // Add multiple times or adapt addToCart to take quantity. For now we loop or modify cart store.
-    // The current addToCart adds 1. We can just call it multiple times, or better yet, we'll update the store later.
-    // For now we'll call it once per quantity.
-    for (let i = 0; i < quantity; i++) {
-      addToCart(selectedProduct);
-    }
+    addToCart(selectedProduct, quantity);
   };
+
+  const relatedProducts = useProductStore.getState().products
+    .filter(p => p.categoria === selectedProduct.categoria && p.id !== selectedProduct.id)
+    .slice(0, 5);
 
   return (
     <div className="bg-gray-50 min-h-screen pb-16">
@@ -164,6 +164,22 @@ export function ProductDetail() {
             )}
           </div>
         </div>
+
+        {/* Productos Relacionados */}
+        {relatedProducts.length > 0 && (
+          <div className="mt-16">
+            <h3 className="text-xl md:text-2xl font-black text-brand-dark uppercase tracking-wide mb-6 border-b border-gray-200 pb-2">
+              PRODUCTOS RELACIONADOS
+            </h3>
+            <div className="flex overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              {relatedProducts.map(product => (
+                <div key={product.id} className="w-[200px] md:w-auto flex-shrink-0">
+                  <ProductCard product={product} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
       </div>
     </div>

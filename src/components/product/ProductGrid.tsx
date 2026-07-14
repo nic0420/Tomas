@@ -11,13 +11,13 @@ interface ProductGridProps {
 const ITEMS_PER_PAGE = 20;
 
 export function ProductGrid({ selectedCategory, onSelectCategory }: ProductGridProps) {
-  const { products, isLoading, error, categories } = useProductStore();
+  const { products, isLoading, error, categories, searchQuery, sortBy, setSortBy } = useProductStore();
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Reset page when category changes
+  // Reset page when category or search or sort changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory]);
+  }, [selectedCategory, searchQuery, sortBy]);
 
   if (isLoading) {
     return (
@@ -42,8 +42,31 @@ export function ProductGrid({ selectedCategory, onSelectCategory }: ProductGridP
     return null;
   }
 
-  // ==== VISTA PRINCIPAL (Sin categoría seleccionada) ====
-  if (selectedCategory === null) {
+  // 1. Filter by category
+  let displayProducts = products;
+  if (selectedCategory) {
+    displayProducts = displayProducts.filter(p => p.categoria === selectedCategory);
+  }
+
+  // 2. Filter by search query
+  if (searchQuery.trim()) {
+    const q = searchQuery.toLowerCase();
+    displayProducts = displayProducts.filter(p => p.nombre_producto.toLowerCase().includes(q));
+  }
+
+  // 3. Sort
+  if (sortBy === 'price_asc') {
+    displayProducts = [...displayProducts].sort((a, b) => a.precio_usd - b.precio_usd);
+  } else if (sortBy === 'price_desc') {
+    displayProducts = [...displayProducts].sort((a, b) => b.precio_usd - a.precio_usd);
+  } else if (sortBy === 'alpha') {
+    displayProducts = [...displayProducts].sort((a, b) => a.nombre_producto.localeCompare(b.nombre_producto));
+  }
+
+  const isFiltering = selectedCategory !== null || searchQuery.trim() !== '' || sortBy !== 'none';
+
+  // ==== VISTA PRINCIPAL (Sin filtros activos) ====
+  if (!isFiltering) {
     return (
       <div className="flex flex-col gap-12 mb-12">
         {categories.map(category => {
@@ -81,33 +104,69 @@ export function ProductGrid({ selectedCategory, onSelectCategory }: ProductGridP
     );
   }
 
-  // ==== VISTA DE CATEGORÍA (Con categoría seleccionada y paginación) ====
-  const filteredProducts = products.filter(p => p.categoria === selectedCategory);
-  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
-  const currentProducts = filteredProducts.slice(
+  // ==== VISTA CON FILTROS (Categoría, Búsqueda o Orden) ====
+  const totalPages = Math.ceil(displayProducts.length / ITEMS_PER_PAGE);
+  const currentProducts = displayProducts.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
 
-  if (filteredProducts.length === 0) {
+  if (displayProducts.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center bg-white border border-gray-200 rounded-sm">
+      <div className="flex flex-col items-center justify-center py-20 text-center bg-white border border-gray-200 rounded-sm mb-12">
         <PackageOpen className="w-12 h-12 text-gray-300 mb-4" />
-        <h3 className="text-gray-600 font-bold mb-1">No hay productos</h3>
-        <p className="text-gray-400 text-sm">Intenta seleccionar otra categoría.</p>
+        <h3 className="text-gray-600 font-bold mb-1">No se encontraron productos</h3>
+        <p className="text-gray-400 text-sm">Intenta con otra búsqueda o categoría.</p>
+        {(searchQuery || selectedCategory) && (
+          <button 
+            onClick={() => {
+              useProductStore.getState().setSearchQuery('');
+              if (onSelectCategory) onSelectCategory(null);
+            }}
+            className="mt-4 text-brand-green font-bold hover:underline"
+          >
+            Ver todos los productos
+          </button>
+        )}
       </div>
     );
   }
 
   return (
     <div className="mb-12">
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 border-b border-gray-200 pb-2 gap-2">
-        <h2 className="text-2xl font-black text-brand-dark uppercase tracking-wide">
-          {selectedCategory}
-        </h2>
-        <span className="text-sm text-gray-500 font-medium">
-          Mostrando {currentProducts.length} de {filteredProducts.length} productos
-        </span>
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 border-b border-gray-200 pb-4 gap-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            {selectedCategory && (
+              <button 
+                onClick={() => onSelectCategory && onSelectCategory(null)}
+                className="text-xs text-gray-500 hover:text-brand-green font-bold uppercase tracking-wider flex items-center"
+              >
+                <ChevronLeft size={14} className="mr-1"/> VER TODAS LAS CATEGORÍAS
+              </button>
+            )}
+          </div>
+          <h2 className="text-2xl md:text-3xl font-black text-brand-dark uppercase tracking-wide">
+            {searchQuery ? `Resultados para "${searchQuery}"` : selectedCategory || 'TODOS LOS PRODUCTOS'}
+          </h2>
+          <span className="text-sm text-gray-500 font-medium">
+            Mostrando {currentProducts.length} de {displayProducts.length} productos
+          </span>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">Ordenar por:</span>
+          <select 
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="border border-gray-200 rounded p-2 text-sm font-medium focus:outline-none focus:border-brand-green bg-white text-gray-700"
+          >
+            <option value="none">Relevancia</option>
+            <option value="price_asc">Menor Precio</option>
+            <option value="price_desc">Mayor Precio</option>
+            <option value="alpha">A - Z</option>
+          </select>
+        </div>
       </div>
       
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-10">
@@ -128,7 +187,6 @@ export function ProductGrid({ selectedCategory, onSelectCategory }: ProductGridP
           </button>
           
           {[...Array(totalPages)].map((_, i) => {
-            // Lógica simple para mostrar solo algunas páginas y no hacer infinita la barra
             if (
               i === 0 || 
               i === totalPages - 1 || 
@@ -148,7 +206,6 @@ export function ProductGrid({ selectedCategory, onSelectCategory }: ProductGridP
                 </button>
               );
             }
-            // Puntos suspensivos
             if (i === 1 || i === totalPages - 2) {
               if (i === 1 && currentPage > 3) return <span key={i} className="px-2 text-gray-400">...</span>;
               if (i === totalPages - 2 && currentPage < totalPages - 2) return <span key={i} className="px-2 text-gray-400">...</span>;

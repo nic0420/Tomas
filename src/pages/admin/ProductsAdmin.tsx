@@ -1,12 +1,12 @@
 import { useState, useRef } from 'react';
 import { useAdminStore } from '../../store/useAdminStore';
 import { useProductStore } from '../../store/useProductStore';
-import { Search, Upload, Edit, ChevronLeft, ChevronRight, Save, X, RefreshCw } from 'lucide-react';
+import { Search, Upload, Edit, ChevronLeft, ChevronRight, Save, X, RefreshCw, Plus } from 'lucide-react';
 import type { Product } from '../../store/useCartStore';
 import Papa from 'papaparse';
 
 export function ProductsAdmin() {
-  const { localProducts, setLocalProducts, updateProduct } = useAdminStore();
+  const { localProducts, setLocalProducts, updateProduct, addProduct } = useAdminStore();
   const { products, fetchProducts } = useProductStore();
   
   // Use localProducts if available, otherwise fallback to the store's products (from Google Sheets)
@@ -19,6 +19,7 @@ export function ProductsAdmin() {
   // Edit Modal State
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [editForm, setEditForm] = useState<Partial<Product>>({});
+  const [isCreating, setIsCreating] = useState(false);
 
   const ITEMS_PER_PAGE = 10;
 
@@ -82,6 +83,7 @@ export function ProductsAdmin() {
   };
 
   const openEditModal = (product: Product) => {
+    setIsCreating(false);
     setEditingProduct(product);
     setEditForm({
       nombre_producto: product.nombre_producto,
@@ -90,10 +92,44 @@ export function ProductsAdmin() {
     });
   };
 
+  const openCreateModal = () => {
+    // If not in local mode, creating a product will initialize local mode with current products
+    if (!localProducts) {
+      if (!confirm('Crear un producto activará el "Modo Edición Local". Dejarás de leer el catálogo de Google Sheets automáticamente hasta que lo restaures. ¿Continuar?')) {
+        return;
+      }
+      setLocalProducts(products); // Snapshot current products
+    }
+    
+    setIsCreating(true);
+    setEditingProduct({
+      id: `PROD-${Date.now()}`,
+      nombre_producto: '',
+      categoria: '',
+      imagen_url: 'https://via.placeholder.com/300?text=Nuevo+Producto',
+      precio_usd: 0,
+    });
+    setEditForm({
+      nombre_producto: '',
+      categoria: '',
+      precio_usd: 0,
+    });
+  };
+
   const saveEdit = () => {
     if (editingProduct) {
-      updateProduct(editingProduct.id, editForm);
+      if (isCreating) {
+        addProduct({
+          ...editingProduct,
+          nombre_producto: editForm.nombre_producto || 'Sin Nombre',
+          precio_usd: editForm.precio_usd || 0,
+          categoria: editForm.categoria || 'Otros',
+        } as Product);
+      } else {
+        updateProduct(editingProduct.id, editForm);
+      }
       setEditingProduct(null);
+      setIsCreating(false);
       fetchProducts(); // Refresh public store
     }
   };
@@ -116,6 +152,13 @@ export function ProductsAdmin() {
               Restaurar Original
             </button>
           )}
+          <button 
+            onClick={openCreateModal}
+            className="bg-brand-green text-white px-6 py-2 rounded-lg font-bold uppercase tracking-widest text-sm hover:bg-brand-dark transition-colors flex items-center gap-2 shadow-lg"
+          >
+            <Plus size={18} />
+            Crear Producto
+          </button>
           <button 
             onClick={handleImportClick}
             className="bg-brand-dark text-brand-gold px-6 py-2 rounded-lg font-bold uppercase tracking-widest text-sm hover:bg-black transition-colors flex items-center gap-2 shadow-lg"
@@ -246,8 +289,8 @@ export function ProductsAdmin() {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-brand-dark text-white">
-              <h3 className="font-black uppercase tracking-widest text-brand-gold">Editar Producto</h3>
-              <button onClick={() => setEditingProduct(null)} className="text-gray-400 hover:text-white transition-colors">
+              <h3 className="font-black uppercase tracking-widest text-brand-gold">{isCreating ? 'Crear Nuevo Producto' : 'Editar Producto'}</h3>
+              <button onClick={() => { setEditingProduct(null); setIsCreating(false); }} className="text-gray-400 hover:text-white transition-colors">
                 <X size={24} />
               </button>
             </div>

@@ -21,7 +21,9 @@ interface AdminState {
   updateOrderStatus: (orderId: string, status: Order['status']) => void;
   setCustomDolarBlue: (rate: number | null) => void;
   setLocalProducts: (products: Product[]) => void;
+  setLocalProducts: (products: Product[]) => void;
   updateProduct: (productId: string, updates: Partial<Product>) => void;
+  addProduct: (product: Product) => void;
 }
 
 export const useAdminStore = create<AdminState>()(
@@ -54,6 +56,13 @@ export const useAdminStore = create<AdminState>()(
         if (!state.localProducts) return state;
         return {
           localProducts: state.localProducts.map(p => p.id === productId ? { ...p, ...updates } : p)
+        };
+      }),
+
+      addProduct: (product) => set((state) => {
+        const list = state.localProducts || [];
+        return {
+          localProducts: [product, ...list]
         };
       })
     }),

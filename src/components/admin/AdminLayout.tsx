@@ -1,8 +1,10 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Package, Settings, LogOut, AlertTriangle } from 'lucide-react';
+import { useAdminStore } from '../../store/useAdminStore';
 
 export function AdminLayout() {
   const location = useLocation();
+  const { customDolarBlue } = useAdminStore();
 
   const menuItems = [
     { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Finanzas y Ventas' },
@@ -58,6 +60,11 @@ export function AdminLayout() {
             Panel de Control Central
           </div>
           <div className="flex items-center gap-4">
+            {customDolarBlue && (
+              <div className="flex items-center gap-2 bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border border-red-200">
+                <AlertTriangle size={14} /> Dólar Manual Activo (${customDolarBlue})
+              </div>
+            )}
             <div className="w-8 h-8 bg-brand-dark rounded-full flex items-center justify-center text-brand-gold font-bold border border-brand-gold/30">
               A
             </div>

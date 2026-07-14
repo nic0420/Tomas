@@ -29,9 +29,13 @@ interface ProductState {
   error: string | null;
   dolarBlue: number;
   selectedProduct: Product | null;
+  searchQuery: string;
+  sortBy: string;
   fetchProducts: () => Promise<void>;
   fetchDolarBlue: () => Promise<void>;
   setSelectedProduct: (product: Product | null) => void;
+  setSearchQuery: (query: string) => void;
+  setSortBy: (sort: string) => void;
 }
 
 export const useProductStore = create<ProductState>((set) => ({
@@ -41,7 +45,11 @@ export const useProductStore = create<ProductState>((set) => ({
   error: null,
   dolarBlue: 1100, // Default fallback
   selectedProduct: null,
+  searchQuery: '',
+  sortBy: 'none',
 
+  setSearchQuery: (query) => set({ searchQuery: query }),
+  setSortBy: (sort) => set({ sortBy: sort }),
   setSelectedProduct: (product) => set({ selectedProduct: product }),
 
   fetchDolarBlue: async () => {
