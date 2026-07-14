@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAdminStore } from '../../store/useAdminStore';
 import { useProductStore } from '../../store/useProductStore';
-import { Settings, Save, RefreshCw, DollarSign } from 'lucide-react';
+import { Save, RefreshCw, DollarSign } from 'lucide-react';
 
 export function SettingsAdmin() {
   const { customDolarBlue, setCustomDolarBlue } = useAdminStore();
