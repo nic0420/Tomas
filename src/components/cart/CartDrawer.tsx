@@ -1,12 +1,14 @@
 import { X, Minus, Plus, ShoppingBag } from 'lucide-react';
 import { useCartStore } from '../../store/useCartStore';
 import { useProductStore } from '../../store/useProductStore';
+import { useAdminStore } from '../../store/useAdminStore';
 import { calculateARSPrice, formatCurrency } from '../../lib/utils';
 import { WHATSAPP_NUMBER } from '../../config/constants';
 
 export function CartDrawer() {
   const { isCartOpen, toggleCart, items, updateQuantity, removeFromCart, clearCart } = useCartStore();
   const { dolarBlue } = useProductStore();
+  const { addOrder } = useAdminStore();
 
   const totalArs = items.reduce((acc, item) => {
     return acc + (calculateARSPrice(item.product.precio_usd, dolarBlue) * item.quantity);
@@ -14,6 +16,17 @@ export function CartDrawer() {
 
   const handleCheckout = () => {
     if (items.length === 0) return;
+
+    // Log the order in Admin Store
+    const totalUsd = items.reduce((acc, item) => acc + (item.product.precio_usd * item.quantity), 0);
+    addOrder({
+      customerName: 'Cliente Anónimo', // Since we don't have a form, we mock it
+      customerPhone: 'Desconocido',
+      totalArs,
+      totalUsd,
+      items: [...items],
+      status: 'Pendiente'
+    });
 
     let message = `*NUEVO PEDIDO - ARSENAL SPORTS*\n\n`;
     
