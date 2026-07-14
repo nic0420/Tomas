@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react';
 import { useProductStore } from '../../store/useProductStore';
-import { formatCurrency } from '../../lib/utils';
-import { Search, Upload, Edit, Save, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Upload, Edit, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export function ProductsAdmin() {
   const { products } = useProductStore();
