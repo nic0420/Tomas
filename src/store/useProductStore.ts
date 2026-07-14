@@ -2,6 +2,7 @@ import { create } from "zustand";
 import Papa from "papaparse";
 import { GOOGLE_SHEETS_CSV_URL } from "../config/constants";
 import type { Product } from "./useCartStore";
+import { useAdminStore } from "./useAdminStore";
 
 interface ProductState {
   products: Product[];
@@ -27,6 +28,12 @@ export const useProductStore = create<ProductState>((set) => ({
 
   fetchDolarBlue: async () => {
     try {
+      const { customDolarBlue } = useAdminStore.getState();
+      if (customDolarBlue) {
+        set({ dolarBlue: customDolarBlue });
+        return;
+      }
+      
       const response = await fetch("https://dolarapi.com/v1/dolares/blue");
       const data = await response.json();
       if (data && data.venta) {
@@ -40,6 +47,20 @@ export const useProductStore = create<ProductState>((set) => ({
   fetchProducts: async () => {
     set({ isLoading: true, error: null });
     try {
+      const { localProducts } = useAdminStore.getState();
+      
+      if (localProducts && localProducts.length > 0) {
+        const catSet = new Set<string>();
+        localProducts.forEach(p => catSet.add(p.categoria));
+        
+        set({ 
+          products: localProducts, 
+          categories: Array.from(catSet),
+          isLoading: false 
+        });
+        return;
+      }
+
       Papa.parse(GOOGLE_SHEETS_CSV_URL, {
         download: true,
         header: true,

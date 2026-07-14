@@ -3,6 +3,7 @@ import { Store } from './pages/store/Store';
 import { AdminLayout } from './components/admin/AdminLayout';
 import { Dashboard } from './pages/admin/Dashboard';
 import { ProductsAdmin } from './pages/admin/ProductsAdmin';
+import { SettingsAdmin } from './pages/admin/SettingsAdmin';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="products" element={<ProductsAdmin />} />
+          <Route path="settings" element={<SettingsAdmin />} />
         </Route>
       </Routes>
     </BrowserRouter>
