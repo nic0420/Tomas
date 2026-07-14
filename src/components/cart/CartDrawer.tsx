@@ -1,13 +1,15 @@
 import { X, Minus, Plus, ShoppingBag } from 'lucide-react';
 import { useCartStore } from '../../store/useCartStore';
+import { useProductStore } from '../../store/useProductStore';
 import { calculateARSPrice, formatCurrency } from '../../lib/utils';
 import { WHATSAPP_NUMBER } from '../../config/constants';
 
 export function CartDrawer() {
   const { isCartOpen, toggleCart, items, updateQuantity, removeFromCart, clearCart } = useCartStore();
+  const { dolarBlue } = useProductStore();
 
   const totalArs = items.reduce((acc, item) => {
-    return acc + (calculateARSPrice(item.product.precio_usd) * item.quantity);
+    return acc + (calculateARSPrice(item.product.precio_usd, dolarBlue) * item.quantity);
   }, 0);
 
   const handleCheckout = () => {
@@ -16,7 +18,7 @@ export function CartDrawer() {
     let message = `*NUEVO PEDIDO - ARSENAL SPORTS*\n\n`;
     
     items.forEach(item => {
-      const price = calculateARSPrice(item.product.precio_usd);
+      const price = calculateARSPrice(item.product.precio_usd, dolarBlue);
       message += `- ${item.quantity}x ${item.product.nombre_producto} (${formatCurrency(price)})\n`;
     });
     
@@ -65,7 +67,7 @@ export function CartDrawer() {
             </div>
           ) : (
             items.map((item) => {
-              const itemPriceArs = calculateARSPrice(item.product.precio_usd);
+              const itemPriceArs = calculateARSPrice(item.product.precio_usd, dolarBlue);
               return (
                 <div key={item.product.id} className="flex gap-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800">
                   <div className="w-20 h-20 bg-zinc-950 rounded flex items-center justify-center flex-shrink-0">

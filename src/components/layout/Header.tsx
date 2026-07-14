@@ -1,8 +1,10 @@
-import { ShoppingCart, Menu, User, Phone } from 'lucide-react';
+import { ShoppingCart, Menu, User, Phone, DollarSign } from 'lucide-react';
 import { useCartStore } from '../../store/useCartStore';
+import { useProductStore } from '../../store/useProductStore';
 
 export function Header() {
   const { toggleCart, items } = useCartStore();
+  const { dolarBlue } = useProductStore();
   const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
@@ -12,13 +14,16 @@ export function Header() {
         <div className="container mx-auto px-4 flex justify-between items-center">
           <div className="flex items-center gap-6">
             <span className="flex items-center gap-1 font-semibold uppercase tracking-wider">
-              BEM-VINDO A TOMMY GUNS
+              BIENVENIDO A TOMMY GUNS
+            </span>
+            <span className="flex items-center gap-1 font-semibold text-brand-green">
+              <DollarSign size={12} /> Dólar Blue: ${dolarBlue}
             </span>
           </div>
           <div className="flex items-center gap-4 font-semibold uppercase tracking-wider">
-            <a href="#" className="hover:text-brand-gold flex items-center gap-1 transition-colors"><User size={12}/> MINHA CONTA</a>
+            <a href="#" className="hover:text-brand-gold flex items-center gap-1 transition-colors"><User size={12}/> MI CUENTA</a>
             <span className="text-gray-300">|</span>
-            <a href="#" className="hover:text-brand-gold transition-colors flex items-center gap-1"><Phone size={12}/> CONTATO</a>
+            <a href="#" className="hover:text-brand-gold transition-colors flex items-center gap-1"><Phone size={12}/> CONTACTO</a>
             <span className="text-gray-300">|</span>
             <a href="https://www.instagram.com/tommygunsctes" target="_blank" rel="noreferrer" className="hover:text-brand-gold flex items-center gap-1 transition-colors">
               INSTAGRAM
@@ -55,7 +60,7 @@ export function Header() {
           <div className="flex w-full border-2 border-brand-green rounded-full overflow-hidden">
             <input
               type="text"
-              placeholder="Digite o que você procura..."
+              placeholder="Escribe lo que buscas..."
               className="w-full bg-white py-3 px-5 text-[13px] text-gray-700 focus:outline-none font-medium"
             />
             <button className="bg-brand-green text-white px-8 hover:bg-brand-dark transition-colors flex items-center justify-center font-bold text-sm uppercase tracking-wide">
@@ -73,7 +78,7 @@ export function Header() {
               <Phone className="w-5 h-5" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Atendimento</span>
+              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Atención al Cliente</span>
               <span className="text-sm font-black text-brand-dark">+54 9 11 1234-5678</span>
             </div>
           </div>
@@ -90,8 +95,8 @@ export function Header() {
               </span>
             </div>
             <div className="hidden md:flex flex-col items-start leading-none text-left">
-              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Meu Carrinho</span>
-              <span className="text-sm font-black text-brand-dark">{totalItems > 0 ? `${totalItems} itens` : 'Vazio'}</span>
+              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Mi Carrito</span>
+              <span className="text-sm font-black text-brand-dark">{totalItems > 0 ? `${totalItems} ítems` : 'Vacío'}</span>
             </div>
           </button>
         </div>

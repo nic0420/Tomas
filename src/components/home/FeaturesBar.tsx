@@ -5,22 +5,22 @@ export function FeaturesBar() {
     {
       icon: <Truck className="w-8 h-8 text-brand-gold" />,
       title: "ENTREGA RÁPIDA",
-      subtitle: "Para todo o país"
+      subtitle: "A todo el país"
     },
     {
       icon: <CreditCard className="w-8 h-8 text-brand-gold" />,
-      title: "PARCELAMENTO",
-      subtitle: "Em até 12x sem juros"
+      title: "PAGO EN CUOTAS",
+      subtitle: "Hasta 12x sin interés"
     },
     {
       icon: <ShieldCheck className="w-8 h-8 text-brand-gold" />,
       title: "COMPRA SEGURA",
-      subtitle: "100% garantido"
+      subtitle: "100% garantizado"
     },
     {
       icon: <Clock className="w-8 h-8 text-brand-gold" />,
-      title: "SUPORTE VIP",
-      subtitle: "Atendimento premium"
+      title: "SOPORTE VIP",
+      subtitle: "Atención premium"
     }
   ];
 

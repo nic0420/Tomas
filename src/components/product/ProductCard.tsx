@@ -1,5 +1,6 @@
 import { ShoppingCart, Heart, Eye } from 'lucide-react';
 import { type Product, useCartStore } from '../../store/useCartStore';
+import { useProductStore } from '../../store/useProductStore';
 import { calculateARSPrice, formatCurrency } from '../../lib/utils';
 
 interface ProductCardProps {
@@ -8,8 +9,9 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCartStore();
+  const { dolarBlue } = useProductStore();
 
-  const finalPriceArs = calculateARSPrice(product.precio_usd);
+  const finalPriceArs = calculateARSPrice(product.precio_usd, dolarBlue);
 
   return (
     <div className="bg-white rounded-md overflow-hidden hover:shadow-2xl transition-all duration-300 group flex flex-col h-full relative border border-gray-100 hover:border-brand-gold/30">
@@ -17,7 +19,7 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* Badges */}
       <div className="absolute top-3 left-3 z-10 flex flex-col gap-1">
         <span className="bg-brand-gold text-white text-[10px] font-black tracking-widest uppercase px-2 py-0.5 rounded-sm shadow-sm">
-          NOVO
+          NUEVO
         </span>
       </div>
       <div className="absolute top-3 right-3 z-10 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0">
@@ -45,7 +47,7 @@ export function ProductCard({ product }: ProductCardProps) {
             className="w-full bg-brand-green hover:bg-brand-dark text-white font-bold uppercase tracking-wider text-xs py-3 rounded-sm flex items-center justify-center gap-2 shadow-lg transition-colors"
           >
             <ShoppingCart size={16} />
-            COMPRAR AGORA
+            COMPRAR AHORA
           </button>
         </div>
       </div>
@@ -65,7 +67,7 @@ export function ProductCard({ product }: ProductCardProps) {
               {formatCurrency(finalPriceArs)}
             </span>
             <span className="text-[11px] text-gray-500 font-medium mt-1">
-              ou <span className="text-brand-gold font-bold">12x</span> de <span className="font-bold text-gray-700">{formatCurrency(finalPriceArs / 12)}</span>
+              o <span className="text-brand-gold font-bold">12x</span> de <span className="font-bold text-gray-700">{formatCurrency(finalPriceArs / 12)}</span>
             </span>
           </div>
         </div>

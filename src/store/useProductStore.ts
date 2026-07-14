@@ -8,7 +8,9 @@ interface ProductState {
   categories: string[];
   loading: boolean;
   error: string | null;
+  dolarBlue: number;
   fetchProducts: () => Promise<void>;
+  fetchDolarBlue: () => Promise<void>;
 }
 
 export const useProductStore = create<ProductState>((set) => ({
@@ -16,6 +18,19 @@ export const useProductStore = create<ProductState>((set) => ({
   categories: [],
   loading: false,
   error: null,
+  dolarBlue: 1000, // Fallback if API fails
+
+  fetchDolarBlue: async () => {
+    try {
+      const response = await fetch("https://dolarapi.com/v1/dolares/blue");
+      const data = await response.json();
+      if (data && data.venta) {
+        set({ dolarBlue: data.venta });
+      }
+    } catch (error) {
+      console.error("Error fetching Dolar Blue:", error);
+    }
+  },
 
   fetchProducts: async () => {
     set({ loading: true, error: null });
