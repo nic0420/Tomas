@@ -55,7 +55,9 @@ export const useProductStore = create<ProductState>((set) => ({
                 nombre_producto: row.nombre_producto,
                 categoria: row.categoria || "Otros",
                 imagen_url: row.imagen_url || "https://via.placeholder.com/150",
-                precio_usd: parseFloat(row.precio_usd) || 0
+                precio_usd: parseFloat(row.precio_usd) || 0,
+                descripcion: row.descripcion || "Descripción no disponible.",
+                caracteristicas: row.caracteristicas || "Características no disponibles."
               };
               validProducts.push(product);
               catSet.add(product.categoria);
