@@ -1,13 +1,23 @@
+import { useState, useEffect } from 'react';
 import { ProductCard } from './ProductCard';
 import { useProductStore } from '../../store/useProductStore';
-import { PackageOpen, ChevronRight } from 'lucide-react';
+import { PackageOpen, ChevronRight, ChevronLeft } from 'lucide-react';
 
 interface ProductGridProps {
   selectedCategory: string | null;
+  onSelectCategory?: (category: string | null) => void;
 }
 
-export function ProductGrid({ selectedCategory }: ProductGridProps) {
-  const { products, isLoading, error } = useProductStore();
+const ITEMS_PER_PAGE = 20;
+
+export function ProductGrid({ selectedCategory, onSelectCategory }: ProductGridProps) {
+  const { products, isLoading, error, categories } = useProductStore();
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset page when category changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory]);
 
   if (isLoading) {
     return (
@@ -28,9 +38,56 @@ export function ProductGrid({ selectedCategory }: ProductGridProps) {
     );
   }
 
-  const filteredProducts = selectedCategory
-    ? products.filter(p => p.categoria === selectedCategory)
-    : products;
+  if (products.length === 0) {
+    return null;
+  }
+
+  // ==== VISTA PRINCIPAL (Sin categoría seleccionada) ====
+  if (selectedCategory === null) {
+    return (
+      <div className="flex flex-col gap-12 mb-12">
+        {categories.map(category => {
+          const categoryProducts = products.filter(p => p.categoria === category);
+          if (categoryProducts.length === 0) return null;
+          
+          return (
+            <div key={category}>
+              <div className="flex items-center justify-between mb-4 border-b border-gray-200 pb-2">
+                <h2 className="text-xl md:text-2xl font-black text-brand-dark uppercase tracking-wide">
+                  LO MEJOR EN {category}
+                </h2>
+                {onSelectCategory && (
+                  <button 
+                    onClick={() => onSelectCategory(category)}
+                    className="text-xs md:text-sm font-bold text-brand-green flex items-center hover:underline uppercase tracking-wider whitespace-nowrap"
+                  >
+                    Ver todos <ChevronRight className="w-4 h-4 ml-1" />
+                  </button>
+                )}
+              </div>
+              
+              {/* Contenedor con scroll horizontal en móviles, grilla en desktop */}
+              <div className="flex overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {categoryProducts.slice(0, 5).map(product => (
+                  <div key={product.id} className="w-[200px] md:w-auto flex-shrink-0">
+                    <ProductCard product={product} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  // ==== VISTA DE CATEGORÍA (Con categoría seleccionada y paginación) ====
+  const filteredProducts = products.filter(p => p.categoria === selectedCategory);
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+  const currentProducts = filteredProducts.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   if (filteredProducts.length === 0) {
     return (
@@ -44,19 +101,70 @@ export function ProductGrid({ selectedCategory }: ProductGridProps) {
 
   return (
     <div className="mb-12">
-      <div className="flex items-center justify-between mb-4 border-b border-gray-200 pb-2">
-        <h2 className="text-2xl font-black text-brand-dark uppercase">
-          {selectedCategory ? selectedCategory : 'Destaques'}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 border-b border-gray-200 pb-2 gap-2">
+        <h2 className="text-2xl font-black text-brand-dark uppercase tracking-wide">
+          {selectedCategory}
         </h2>
-        <a href="#" className="text-sm font-bold text-brand-blue flex items-center hover:underline">
-          Ver todos <ChevronRight className="w-4 h-4" />
-        </a>
+        <span className="text-sm text-gray-500 font-medium">
+          Mostrando {currentProducts.length} de {filteredProducts.length} productos
+        </span>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        {filteredProducts.map((product) => (
+      
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-10">
+        {currentProducts.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
+
+      {/* Paginación */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 flex-wrap">
+          <button 
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="w-10 h-10 flex items-center justify-center rounded border border-gray-200 bg-white text-gray-600 hover:border-brand-green hover:text-brand-green disabled:opacity-50 disabled:hover:border-gray-200 disabled:hover:text-gray-600 transition-colors"
+          >
+            <ChevronLeft size={18} />
+          </button>
+          
+          {[...Array(totalPages)].map((_, i) => {
+            // Lógica simple para mostrar solo algunas páginas y no hacer infinita la barra
+            if (
+              i === 0 || 
+              i === totalPages - 1 || 
+              (i >= currentPage - 2 && i <= currentPage)
+            ) {
+              return (
+                <button
+                  key={i}
+                  onClick={() => setCurrentPage(i + 1)}
+                  className={`w-10 h-10 flex items-center justify-center rounded font-bold transition-colors ${
+                    currentPage === i + 1 
+                      ? 'bg-brand-green text-white border-brand-green' 
+                      : 'border border-gray-200 bg-white text-gray-600 hover:border-brand-green hover:text-brand-green'
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              );
+            }
+            // Puntos suspensivos
+            if (i === 1 || i === totalPages - 2) {
+              if (i === 1 && currentPage > 3) return <span key={i} className="px-2 text-gray-400">...</span>;
+              if (i === totalPages - 2 && currentPage < totalPages - 2) return <span key={i} className="px-2 text-gray-400">...</span>;
+            }
+            return null;
+          })}
+
+          <button 
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="w-10 h-10 flex items-center justify-center rounded border border-gray-200 bg-white text-gray-600 hover:border-brand-green hover:text-brand-green disabled:opacity-50 disabled:hover:border-gray-200 disabled:hover:text-gray-600 transition-colors"
+          >
+            <ChevronRight size={18} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -44,7 +44,10 @@ function App() {
             <div className="container mx-auto px-4 py-8 flex-1">
               {selectedCategory === null && <BannersGrid />}
               
-              <ProductGrid selectedCategory={selectedCategory} />
+              <ProductGrid 
+                selectedCategory={selectedCategory} 
+                onSelectCategory={handleSelectCategory}
+              />
               
               {selectedCategory === null && <BrandsCarousel />}
             </div>
