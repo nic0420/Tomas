@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import { useProductStore } from '../../store/useProductStore';
 import type { Product } from '../../store/useCartStore';
