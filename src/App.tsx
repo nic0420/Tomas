@@ -8,6 +8,7 @@ import { HeroSlider } from './components/home/HeroSlider';
 import { BannersGrid } from './components/home/BannersGrid';
 import { BrandsCarousel } from './components/home/BrandsCarousel';
 import { FeaturesBar } from './components/home/FeaturesBar';
+import { FloatingSocial } from './components/layout/FloatingSocial';
 
 function App() {
   const { fetchProducts, fetchDolarBlue } = useProductStore();
@@ -19,7 +20,7 @@ function App() {
   }, [fetchProducts, fetchDolarBlue]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
+    <div className="min-h-screen bg-gray-50 flex flex-col font-sans relative">
       <Header />
       <CategoryNav 
         selectedCategory={selectedCategory} 
@@ -90,6 +91,7 @@ function App() {
       </footer>
 
       <CartDrawer />
+      <FloatingSocial />
     </div>
   );
 }
