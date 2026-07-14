@@ -10,6 +10,7 @@ import { BrandsCarousel } from '../../components/home/BrandsCarousel';
 import { ProductGrid } from '../../components/product/ProductGrid';
 import { FloatingSocial } from '../../components/layout/FloatingSocial';
 import { ProductDetail } from '../../components/product/ProductDetail';
+import { CartDrawer } from '../../components/cart/CartDrawer';
 
 export function Store() {
   const { fetchProducts, fetchDolarBlue, selectedProduct, setSelectedProduct } = useProductStore();
@@ -94,6 +95,7 @@ export function Store() {
           <Link to="/admin" className="text-[#333] hover:text-brand-green transition-colors text-xs uppercase tracking-widest font-bold">Admin Panel</Link>
         </div>
       </footer>
+      <CartDrawer />
     </div>
   );
 }

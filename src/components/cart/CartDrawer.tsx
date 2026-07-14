@@ -1,4 +1,5 @@
 import { X, Minus, Plus, ShoppingBag } from 'lucide-react';
+import { useState } from 'react';
 import { useCartStore } from '../../store/useCartStore';
 import { useProductStore } from '../../store/useProductStore';
 import { useAdminStore } from '../../store/useAdminStore';
@@ -10,25 +11,36 @@ export function CartDrawer() {
   const { dolarBlue } = useProductStore();
   const { addOrder } = useAdminStore();
 
+  const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+
   const totalArs = items.reduce((acc, item) => {
     return acc + (calculateARSPrice(item.product.precio_usd, dolarBlue) * item.quantity);
   }, 0);
 
   const handleCheckout = () => {
     if (items.length === 0) return;
+    if (!customerName.trim() || !customerPhone.trim()) {
+      setErrorMsg('Por favor completa tus datos para finalizar.');
+      return;
+    }
+    setErrorMsg('');
 
     // Log the order in Admin Store
     const totalUsd = items.reduce((acc, item) => acc + (item.product.precio_usd * item.quantity), 0);
     addOrder({
-      customerName: 'Cliente Anónimo', // Since we don't have a form, we mock it
-      customerPhone: 'Desconocido',
+      customerName: customerName,
+      customerPhone: customerPhone,
       totalArs,
       totalUsd,
       items: [...items],
       status: 'Pendiente'
     });
 
-    let message = `*NUEVO PEDIDO - ARSENAL SPORTS*\n\n`;
+    let message = `*NUEVO PEDIDO - TOMMY GUNS*\n\n`;
+    message += `*Cliente:* ${customerName}\n`;
+    message += `*Teléfono:* ${customerPhone}\n\n`;
     
     items.forEach(item => {
       const price = calculateARSPrice(item.product.precio_usd, dolarBlue);
@@ -133,19 +145,47 @@ export function CartDrawer() {
 
         {/* Footer */}
         {items.length > 0 && (
-          <div className="p-4 border-t border-zinc-800 bg-zinc-950 space-y-4">
-            <div className="flex justify-between items-center text-zinc-300">
-              <span className="font-medium">Subtotal</span>
-              <span className="text-lg font-bold text-white">{formatCurrency(totalArs)}</span>
+          <div className="border-t border-gray-100 p-6 space-y-4">
+            
+            {/* Checkout Form */}
+            <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
+              <h4 className="text-sm font-bold text-gray-700 uppercase tracking-widest mb-2">Tus Datos</h4>
+              {errorMsg && <p className="text-red-500 text-xs font-bold">{errorMsg}</p>}
+              <input 
+                type="text" 
+                placeholder="Nombre Completo" 
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-brand-green"
+              />
+              <input 
+                type="text" 
+                placeholder="Teléfono" 
+                value={customerPhone}
+                onChange={(e) => setCustomerPhone(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-brand-green"
+              />
+            </div>
+
+            <div className="flex justify-between items-end">
+              <span className="text-gray-500 uppercase tracking-widest text-xs font-bold">Total</span>
+              <div className="text-right">
+                <div className="text-2xl font-black text-brand-green">
+                  {formatCurrency(totalArs)}
+                </div>
+                <div className="text-xs text-gray-400 font-bold">
+                  Cotización Dólar: ${dolarBlue}
+                </div>
+              </div>
             </div>
             
-            <button 
+            <button
               onClick={handleCheckout}
-              className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-zinc-950 font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-brand-green text-white py-4 font-black uppercase tracking-widest hover:bg-brand-dark transition-colors flex items-center justify-center gap-2 rounded shadow-lg"
             >
-              <span>Finalizar Compra vía WhatsApp</span>
+              Confirmar por WhatsApp
             </button>
-            
+
             <button 
               onClick={clearCart}
               className="w-full text-xs text-zinc-500 hover:text-zinc-300 text-center"
