@@ -38,7 +38,7 @@ export const useProductStore = create<ProductState>((set) => ({
   },
 
   fetchProducts: async () => {
-    set({ loading: true, error: null });
+    set({ isLoading: true, error: null });
     try {
       Papa.parse(GOOGLE_SHEETS_CSV_URL, {
         download: true,
@@ -65,16 +65,16 @@ export const useProductStore = create<ProductState>((set) => ({
           set({ 
             products: validProducts, 
             categories: Array.from(catSet),
-            loading: false 
+            isLoading: false 
           });
         },
         error: (error) => {
           console.error("Error parsing CSV:", error);
-          set({ error: error.message, loading: false });
+          set({ error: error.message, isLoading: false });
         }
       });
     } catch (err: any) {
-      set({ error: err.message, loading: false });
+      set({ error: err.message, isLoading: false });
     }
   }
 }));
