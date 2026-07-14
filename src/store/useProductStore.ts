@@ -4,6 +4,24 @@ import { GOOGLE_SHEETS_CSV_URL } from "../config/constants";
 import type { Product } from "./useCartStore";
 import { useAdminStore } from "./useAdminStore";
 
+const CATEGORY_TRANSLATIONS: Record<string, string> = {
+  "Armas de Pressão": "Armas de Aire Comprimido",
+  "Acessórios": "Accesorios",
+  "Vestuário": "Indumentaria",
+  "Munição e Gás": "Munición y Gas",
+  "Ótica": "Óptica",
+  "Facas e Canivetes": "Cuchillos y Navajas",
+  "Tiro Esportivo": "Tiro Deportivo",
+  "Arquearia": "Arquería",
+  "Sobrevivência": "Supervivencia",
+  "Tático": "Táctico",
+  "Diversos": "Varios",
+  "Lançamentos": "Lanzamientos",
+  "Promoções": "Promociones",
+};
+
+const translateCategory = (cat: string) => CATEGORY_TRANSLATIONS[cat] || cat;
+
 interface ProductState {
   products: Product[];
   categories: string[];
@@ -51,11 +69,15 @@ export const useProductStore = create<ProductState>((set) => ({
       
       if (localProducts && localProducts.length > 0) {
         const catSet = new Set<string>();
-        localProducts.forEach(p => catSet.add(p.categoria));
+        const translatedLocal = localProducts.map(p => {
+          const translatedCat = translateCategory(p.categoria);
+          catSet.add(translatedCat);
+          return { ...p, categoria: translatedCat };
+        });
         
         set({ 
-          products: localProducts, 
-          categories: Array.from(catSet),
+          products: translatedLocal, 
+          categories: Array.from(catSet).sort(),
           isLoading: false 
         });
         return;
@@ -74,7 +96,7 @@ export const useProductStore = create<ProductState>((set) => ({
               const product: Product = {
                 id: row.id,
                 nombre_producto: row.nombre_producto,
-                categoria: row.categoria || "Otros",
+                categoria: translateCategory(row.categoria || "Otros"),
                 imagen_url: row.imagen_url || "https://via.placeholder.com/150",
                 precio_usd: parseFloat(row.precio_usd) || 0,
                 descripcion: row.descripcion || "Descripción no disponible.",

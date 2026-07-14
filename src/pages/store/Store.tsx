@@ -27,15 +27,28 @@ export function Store() {
   }, [fetchProducts, fetchDolarBlue]);
 
   return (
-    <div className="min-h-screen flex flex-col font-sans bg-gray-50">
-      <FloatingSocial />
-      <Header />
-      <CategoryNav 
-        selectedCategory={selectedCategory} 
-        onSelectCategory={handleSelectCategory} 
+    <div className="min-h-screen flex flex-col font-sans bg-[#f4f5f3] relative">
+      {/* Background Logo Watermark */}
+      <div 
+        className="fixed inset-0 z-0 opacity-[0.04] pointer-events-none mix-blend-multiply"
+        style={{
+          backgroundImage: 'url(/bg_logo.jpg)',
+          backgroundSize: '50%',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'repeat'
+        }}
       />
       
-      <main className="flex-1 flex flex-col">
+      {/* Main Content Container (z-10 to stay above the background) */}
+      <div className="relative z-10 flex flex-col min-h-screen">
+        <FloatingSocial />
+        <Header />
+        <CategoryNav 
+          selectedCategory={selectedCategory} 
+          onSelectCategory={handleSelectCategory} 
+        />
+        
+        <main className="flex-1 flex flex-col">
         {selectedProduct ? (
           <ProductDetail />
         ) : (
@@ -96,6 +109,7 @@ export function Store() {
         </div>
       </footer>
       <CartDrawer />
+      </div>
     </div>
   );
 }
