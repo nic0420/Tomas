@@ -21,7 +21,6 @@ interface AdminState {
   updateOrderStatus: (orderId: string, status: Order['status']) => void;
   setCustomDolarBlue: (rate: number | null) => void;
   setLocalProducts: (products: Product[]) => void;
-  setLocalProducts: (products: Product[]) => void;
   updateProduct: (productId: string, updates: Partial<Product>) => void;
   addProduct: (product: Product) => void;
 }
