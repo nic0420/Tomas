@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useProductStore } from '../../store/useProductStore';
 import { Header } from '../../components/layout/Header';
 import { CategoryNav } from '../../components/layout/CategoryNav';
@@ -88,8 +89,9 @@ export function Store() {
             </div>
           </div>
         </div>
-        <div className="container mx-auto px-4 text-center border-t border-[#222] pt-8">
+        <div className="container mx-auto px-4 text-center border-t border-[#222] pt-8 flex items-center justify-between">
           <p>© 2026 Tomas Store. Todos los derechos reservados.</p>
+          <Link to="/admin" className="text-[#333] hover:text-brand-green transition-colors text-xs uppercase tracking-widest font-bold">Admin Panel</Link>
         </div>
       </footer>
     </div>
