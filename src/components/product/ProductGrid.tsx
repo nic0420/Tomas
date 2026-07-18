@@ -112,7 +112,7 @@ export function ProductGrid() {
 
   if (displayProducts.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center bg-white border border-gray-200 rounded-sm mb-12">
+      <div id="product-grid" className="flex flex-col items-center justify-center py-20 text-center bg-white border border-gray-200 rounded-sm mb-12">
         <PackageOpen className="w-12 h-12 text-gray-300 mb-4" />
         <h3 className="text-gray-600 font-bold mb-1">No se encontraron productos</h3>
         <p className="text-gray-400 text-sm">Intenta con otra búsqueda o categoría.</p>
@@ -132,7 +132,7 @@ export function ProductGrid() {
   }
 
   return (
-    <div className="mb-12">
+    <div id="product-grid" className="mb-12">
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 border-b border-gray-200 pb-4 gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">

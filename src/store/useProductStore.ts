@@ -54,7 +54,7 @@ export const useProductStore = create<ProductState>((set) => ({
   setSearchQuery: (query) => set({ searchQuery: query }),
   setSortBy: (sort) => set({ sortBy: sort }),
   setSelectedProduct: (product) => set({ selectedProduct: product }),
-  setSelectedCategory: (category) => set({ selectedCategory: category, selectedProduct: null }),
+  setSelectedCategory: (category) => set({ selectedCategory: category, selectedProduct: null, searchQuery: '' }),
 
   fetchDolarBlue: async () => {
     try {
