@@ -86,17 +86,17 @@ export function CartDrawer() {
       />
       
       {/* Drawer */}
-      <div className="fixed inset-y-0 right-0 w-full max-w-md bg-zinc-950 shadow-2xl border-l border-zinc-800 z-50 flex flex-col transform transition-transform">
+      <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl border-l border-gray-200 z-50 flex flex-col transform transition-transform">
         
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-zinc-800">
+        <div className="flex items-center justify-between p-5 border-b border-gray-100 bg-gray-50">
           <div className="flex items-center gap-2">
-            <ShoppingBag className="w-5 h-5 text-emerald-500" />
-            <h2 className="text-lg font-bold text-white">Tu Carrito</h2>
+            <ShoppingBag className="w-5 h-5 text-brand-green" />
+            <h2 className="text-lg font-black text-brand-dark uppercase tracking-widest">Tu Carrito</h2>
           </div>
           <button 
             onClick={toggleCart}
-            className="p-2 text-zinc-400 hover:text-white rounded-full hover:bg-zinc-800 transition-colors"
+            className="p-2 text-gray-400 hover:text-brand-dark rounded-full hover:bg-gray-200 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -105,52 +105,53 @@ export function CartDrawer() {
         {/* Cart Items */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-zinc-500 space-y-4">
-              <ShoppingBag className="w-12 h-12 opacity-20" />
-              <p>Tu carrito está vacío</p>
+            <div className="flex flex-col items-center justify-center h-full text-gray-400 space-y-4">
+              <ShoppingBag className="w-16 h-16 opacity-20 text-brand-green" />
+              <p className="font-bold text-gray-500">Tu carrito está vacío</p>
+              <button onClick={toggleCart} className="text-sm text-brand-green font-bold hover:underline">¡Volver a la tienda!</button>
             </div>
           ) : (
             items.map((item) => {
               const itemPriceArs = calculateARSPrice(item.product.precio_usd, dolarBlue);
               return (
-                <div key={item.product.id} className="flex gap-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800">
-                  <div className="w-20 h-20 bg-zinc-950 rounded flex items-center justify-center flex-shrink-0">
+                <div key={item.product.id} className="flex gap-4 bg-white p-3 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="w-20 h-20 bg-gray-50 rounded flex items-center justify-center flex-shrink-0 p-2">
                     <img 
                       src={item.product.imagen_url} 
                       alt={item.product.nombre_producto} 
-                      className="max-h-full object-contain"
+                      className="max-h-full object-contain mix-blend-multiply"
                     />
                   </div>
                   
                   <div className="flex-1 flex flex-col">
-                    <h3 className="text-sm text-zinc-100 font-medium line-clamp-2">
+                    <h3 className="text-xs text-gray-700 font-bold line-clamp-2 uppercase">
                       {item.product.nombre_producto}
                     </h3>
-                    <p className="text-emerald-500 font-bold mt-1">
+                    <p className="text-brand-green font-black mt-1">
                       {formatCurrency(itemPriceArs)}
                     </p>
                     
-                    <div className="flex items-center justify-between mt-auto">
-                      <div className="flex items-center bg-zinc-950 rounded border border-zinc-700">
+                    <div className="flex items-center justify-between mt-auto pt-2">
+                      <div className="flex items-center bg-gray-50 rounded border border-gray-200">
                         <button 
                           onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                          className="p-1.5 text-zinc-400 hover:text-white transition-colors"
+                          className="p-1.5 text-gray-500 hover:text-brand-green hover:bg-gray-100 transition-colors"
                         >
                           <Minus className="w-3 h-3" />
                         </button>
-                        <span className="w-8 text-center text-sm font-medium text-white">
+                        <span className="w-8 text-center text-sm font-bold text-brand-dark">
                           {item.quantity}
                         </span>
                         <button 
                           onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                          className="p-1.5 text-zinc-400 hover:text-white transition-colors"
+                          className="p-1.5 text-gray-500 hover:text-brand-green hover:bg-gray-100 transition-colors"
                         >
                           <Plus className="w-3 h-3" />
                         </button>
                       </div>
                       <button 
                         onClick={() => removeFromCart(item.product.id)}
-                        className="text-xs text-red-400 hover:text-red-300 underline"
+                        className="text-xs text-red-500 hover:text-red-700 font-semibold underline decoration-red-200 hover:decoration-red-500 transition-colors"
                       >
                         Eliminar
                       </button>
@@ -164,7 +165,7 @@ export function CartDrawer() {
 
         {/* Footer */}
         {items.length > 0 && (
-          <div className="border-t border-gray-100 p-6 space-y-4">
+          <div className="border-t border-gray-100 bg-white p-6 space-y-4 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] z-10">
             
             {/* Checkout Form */}
             <div className="space-y-3 bg-gray-50 p-4 rounded-lg border border-gray-100">
@@ -214,7 +215,7 @@ export function CartDrawer() {
 
             <button 
               onClick={clearCart}
-              className="w-full text-xs text-zinc-500 hover:text-zinc-300 text-center"
+              className="w-full text-xs text-gray-400 hover:text-red-500 font-bold tracking-wide uppercase transition-colors"
             >
               Vaciar carrito
             </button>

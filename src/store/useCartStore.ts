@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 export interface Product {
   id: string;
@@ -25,44 +26,53 @@ interface CartState {
   clearCart: () => void;
 }
 
-export const useCartStore = create<CartState>((set) => ({
-  items: [],
-  isCartOpen: false,
+export const useCartStore = create<CartState>()(
+  persist(
+    (set) => ({
+      items: [],
+      isCartOpen: false,
 
-  addToCart: (product, quantity = 1) => set((state) => {
-    const existingItem = state.items.find(item => item.product.id === product.id);
-    if (existingItem) {
-      return {
-        items: state.items.map(item =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        ),
-        isCartOpen: true, // open cart when adding
-      };
+      addToCart: (product, quantity = 1) => set((state) => {
+        const existingItem = state.items.find(item => item.product.id === product.id);
+        if (existingItem) {
+          return {
+            items: state.items.map(item =>
+              item.product.id === product.id
+                ? { ...item, quantity: item.quantity + quantity }
+                : item
+            ),
+            isCartOpen: true, // open cart when adding
+          };
+        }
+        return { 
+          items: [...state.items, { product, quantity }],
+          isCartOpen: true
+        };
+      }),
+
+      removeFromCart: (productId) => set((state) => ({
+        items: state.items.filter(item => item.product.id !== productId)
+      })),
+
+      updateQuantity: (productId, quantity) => set((state) => {
+        if (quantity <= 0) {
+          return { items: state.items.filter(item => item.product.id !== productId) };
+        }
+        return {
+          items: state.items.map(item =>
+            item.product.id === productId ? { ...item, quantity } : item
+          )
+        };
+      }),
+
+      toggleCart: () => set((state) => ({ isCartOpen: !state.isCartOpen })),
+      
+      clearCart: () => set({ items: [] })
+    }),
+    {
+      name: "tomas-cart-storage",
+      // Omit isCartOpen from persistence so it doesn't open on reload
+      partialize: (state) => ({ items: state.items }),
     }
-    return { 
-      items: [...state.items, { product, quantity }],
-      isCartOpen: true
-    };
-  }),
-
-  removeFromCart: (productId) => set((state) => ({
-    items: state.items.filter(item => item.product.id !== productId)
-  })),
-
-  updateQuantity: (productId, quantity) => set((state) => {
-    if (quantity <= 0) {
-      return { items: state.items.filter(item => item.product.id !== productId) };
-    }
-    return {
-      items: state.items.map(item =>
-        item.product.id === productId ? { ...item, quantity } : item
-      )
-    };
-  }),
-
-  toggleCart: () => set((state) => ({ isCartOpen: !state.isCartOpen })),
-  
-  clearCart: () => set({ items: [] })
-}));
+  )
+);
