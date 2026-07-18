@@ -1,6 +1,7 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { createObjectCsvWriter } from 'csv-writer';
+import fs from 'fs';
 
 const CATEGORIES = [
   { name: 'Airsoft', url: 'https://www.arsenalsports.com/produtos/airsoft/filter?d=103' },
@@ -13,8 +14,31 @@ const CATEGORIES = [
   { name: 'Ofertas', url: 'https://www.arsenalsports.com/produtos/ofertas-e-promocoes/filter?d=635' }
 ];
 
+const CSV_PATH = 'public/productos.csv';
+const fileExists = fs.existsSync(CSV_PATH);
+
+let existingTitles = new Set();
+if (fileExists) {
+  const content = fs.readFileSync(CSV_PATH, 'utf-8');
+  const lines = content.split('\n');
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+    const parts = line.split(',');
+    if (parts.length > 1) {
+      let title = parts[1];
+      if (title.startsWith('"')) {
+        const match = line.match(/^[^,]+,"([^"]+)"/);
+        if (match) title = match[1];
+      }
+      existingTitles.add(title.trim());
+    }
+  }
+  console.log(`Encontrados ${existingTitles.size} productos ya scrapeados. Se omitirán para retomar desde donde quedó.`);
+}
+
 const csvWriter = createObjectCsvWriter({
-  path: 'public/productos.csv',
+  path: CSV_PATH,
   header: [
     { id: 'id', title: 'id' },
     { id: 'nombre_producto', title: 'nombre_producto' },
@@ -23,7 +47,8 @@ const csvWriter = createObjectCsvWriter({
     { id: 'precio_usd', title: 'precio_usd' },
     { id: 'descripcion', title: 'descripcion' },
     { id: 'caracteristicas', title: 'caracteristicas' }
-  ]
+  ],
+  append: fileExists
 });
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
@@ -33,13 +58,9 @@ async function scrapeProductDetails(productUrl) {
     const response = await axios.get(productUrl);
     const $ = cheerio.load(response.data);
     
-    // Arsenal usually puts description and specs in tabs or specific divs.
-    // Assuming .descricao-produto or #tab-descricao for description
-    // and #tab-caracteristicas for specs.
     let descripcion = $('#tab-descricao').text().trim() || $('.descricao-produto').text().trim();
     let caracteristicas = $('#tab-caracteristicas').text().trim() || $('.caracteristicas-produto').text().trim();
     
-    // Fallback if structure is different
     if (!descripcion) descripcion = "La descripción de este producto se actualizará próximamente.";
     if (!caracteristicas) caracteristicas = "Las características se actualizarán próximamente.";
     
@@ -56,12 +77,12 @@ async function scrapeProductDetails(productUrl) {
 async function scrapeCategory(category) {
   let page = 1;
   let hasMore = true;
-  const products = [];
+  let scrapedCount = 0;
 
   while (hasMore) {
     try {
       const pageUrl = `${category.url}&page=${page}`;
-      console.log(`\n[${category.name}] Scraping página ${page}: ${pageUrl}`);
+      console.log(`\n[${category.name}] Revisando página ${page}: ${pageUrl}`);
       
       const response = await axios.get(pageUrl);
       const $ = cheerio.load(response.data);
@@ -77,13 +98,18 @@ async function scrapeCategory(category) {
       for (let i = 0; i < productElements.length; i++) {
         const el = productElements[i];
         
-        const imgEl = $(el).find('figure.product-media img').first();
-        const imagenUrl = imgEl.attr('src') || '';
-
         const titleEl = $(el).find('.product-details h3.product-name a').first();
-        const productUrl = titleEl.attr('href');
         let titleRaw = titleEl.text().trim();
         titleRaw = titleRaw.replace(/Ref\.:\s*\d+\s*/g, '').trim();
+
+        if (existingTitles.has(titleRaw)) {
+          console.log(`    -> Saltando (ya scrapeado): ${titleRaw.substring(0,30)}...`);
+          continue;
+        }
+
+        const imgEl = $(el).find('figure.product-media img').first();
+        const imagenUrl = imgEl.attr('src') || '';
+        const productUrl = titleEl.attr('href');
 
         const priceEl = $(el).find('.product-price ins.new-price').first();
         let priceStr = priceEl.text().trim(); 
@@ -107,10 +133,10 @@ async function scrapeCategory(category) {
             const details = await scrapeProductDetails(productUrl);
             descripcion = details.descripcion;
             caracteristicas = details.caracteristicas;
-            await delay(1500); // 1.5s delay between products to avoid bans
+            await delay(1500);
           }
 
-          products.push({
+          const product = {
             id,
             nombre_producto: titleRaw,
             categoria: category.name,
@@ -118,16 +144,17 @@ async function scrapeCategory(category) {
             precio_usd: precioUsd,
             descripcion,
             caracteristicas
-          });
+          };
+
+          await csvWriter.writeRecords([product]);
+          existingTitles.add(titleRaw);
+          scrapedCount++;
         }
       }
 
-      console.log(`[${category.name}] Extraídos ${productElements.length} productos de la página ${page}.`);
+      console.log(`[${category.name}] Progreso en la página ${page}.`);
       page++;
-      await delay(2000); // 2s between pages
-      
-      // SOLO PARA PRUEBAS: Romper después de la página 1
-      hasMore = false; 
+      await delay(2000);
 
     } catch (error) {
       console.error(`[${category.name}] Error en página ${page}:`, error.message);
@@ -135,28 +162,21 @@ async function scrapeCategory(category) {
     }
   }
 
-  return products;
+  return scrapedCount;
 }
 
 async function runScraper() {
   console.log('Iniciando Web Scraper PROFUNDO de Arsenal Sports...');
-  console.log('ESTE PROCESO PUEDE TARDAR VARIOS MINUTOS U HORAS PORQUE VISITA CADA PRODUCTO INDIVIDUALMENTE.');
+  console.log('Modo REANUDAR: Se saltarán los productos ya guardados en el CSV.');
   
-  let allProducts = [];
+  let totalScraped = 0;
 
   for (const cat of CATEGORIES) {
-    const catProducts = await scrapeCategory(cat);
-    allProducts = allProducts.concat(catProducts);
+    const count = await scrapeCategory(cat);
+    totalScraped += count;
   }
 
-  console.log(`\nScraping completado. Total de productos extraídos: ${allProducts.length}`);
-  
-  if (allProducts.length > 0) {
-    await csvWriter.writeRecords(allProducts);
-    console.log('Archivo "productos.csv" generado correctamente.');
-  } else {
-    console.log('No se extrajeron productos.');
-  }
+  console.log(`\nScraping completado. Total de NUEVOS productos extraídos hoy: ${totalScraped}`);
 }
 
 runScraper();

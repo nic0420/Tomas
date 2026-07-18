@@ -2,9 +2,14 @@ import { useAdminStore } from '../../store/useAdminStore';
 import { formatCurrency } from '../../lib/utils';
 import { DollarSign, TrendingUp, ShoppingCart, Package } from 'lucide-react';
 import type { Order } from '../../store/useAdminStore';
+import { useEffect } from 'react';
 
 export function Dashboard() {
-  const { orders, updateOrderStatus } = useAdminStore();
+  const { orders, updateOrderStatus, fetchOrders, isLoadingOrders } = useAdminStore();
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   const totalSalesArs = orders.reduce((sum, order) => sum + order.totalArs, 0);
   const totalSalesUsd = orders.reduce((sum, order) => sum + order.totalUsd, 0);
@@ -87,18 +92,24 @@ export function Dashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {orders.length === 0 ? (
+              {isLoadingOrders ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-16 text-center text-gray-500">
+                    <p className="text-lg font-medium">Cargando pedidos...</p>
+                  </td>
+                </tr>
+              ) : orders.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-16 text-center text-gray-500">
                     <Package className="w-16 h-16 mx-auto text-gray-300 mb-4" />
                     <p className="text-lg font-medium">No hay pedidos registrados todavía.</p>
-                    <p className="text-sm">Las ventas por WhatsApp aparecerán aquí automáticamente.</p>
+                    <p className="text-sm">Las ventas aparecerán aquí automáticamente.</p>
                   </td>
                 </tr>
               ) : (
                 orders.map((order) => (
                   <tr key={order.id} className="hover:bg-gray-50/80 transition-colors">
-                    <td className="px-6 py-4 font-black text-gray-900">{order.id}</td>
+                    <td className="px-6 py-4 font-black text-gray-900">{order.id.slice(0, 8).toUpperCase()}</td>
                     <td className="px-6 py-4 text-gray-600 font-medium">
                       {new Date(order.date).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' })}
                     </td>

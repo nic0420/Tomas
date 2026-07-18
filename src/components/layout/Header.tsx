@@ -1,10 +1,13 @@
 import { ShoppingCart, Menu, User, Phone, DollarSign } from 'lucide-react';
 import { useCartStore } from '../../store/useCartStore';
 import { useProductStore } from '../../store/useProductStore';
+import { useAuthStore } from '../../store/useAuthStore';
+import { Link } from 'react-router-dom';
 
 export function Header() {
   const { toggleCart, items } = useCartStore();
   const { dolarBlue } = useProductStore();
+  const { isAuthenticated, user } = useAuthStore();
   const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
@@ -21,7 +24,15 @@ export function Header() {
             </span>
           </div>
           <div className="flex items-center gap-4 font-semibold uppercase tracking-wider">
-            <a href="#" className="hover:text-brand-gold flex items-center gap-1 transition-colors"><User size={12}/> MI CUENTA</a>
+            {isAuthenticated ? (
+              <Link to="/profile" className="hover:text-brand-gold flex items-center gap-1 transition-colors">
+                <User size={12}/> MI CUENTA ({user?.name})
+              </Link>
+            ) : (
+              <Link to="/login" className="hover:text-brand-gold flex items-center gap-1 transition-colors">
+                <User size={12}/> INICIAR SESIÓN
+              </Link>
+            )}
             <span className="text-gray-300">|</span>
             <a href="#" className="hover:text-brand-gold transition-colors flex items-center gap-1"><Phone size={12}/> CONTACTO</a>
             <span className="text-gray-300">|</span>
@@ -81,7 +92,7 @@ export function Header() {
             </div>
             <div className="flex flex-col">
               <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Atención al Cliente</span>
-              <span className="text-sm font-black text-brand-dark">+54 9 11 1234-5678</span>
+              <span className="text-sm font-black text-brand-dark">+54 9 3757 54-5877</span>
             </div>
           </div>
 

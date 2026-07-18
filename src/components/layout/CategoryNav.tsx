@@ -14,25 +14,25 @@ export function CategoryNav({ selectedCategory, onSelectCategory }: CategoryNavP
 
   const megaMenu = [
     { name: 'MARCAS', subcategories: [] },
-    { name: 'AIRSOFT', subcategories: ['RIFLES', 'PISTOLAS', 'SNIPERS', 'ACESSÓRIOS'] },
-    { name: 'AIRGUN', subcategories: ['CARABINAS', 'PISTOLAS DE CHUMBINHO', 'ACESSÓRIOS AIRGUN'] },
+    { name: 'AIRSOFT', subcategories: ['RIFLES', 'PISTOLAS', 'SNIPERS', 'ACCESORIOS'] },
+    { name: 'AIRGUN', subcategories: ['CARABINAS', 'PISTOLAS DE BALINES', 'ACCESORIOS AIRGUN'] },
     { 
       name: 'PAINTBALL', 
       subcategories: [
         'PAINTBALL',
         'MARCADORES',
         'CO2 / HPA',
-        'MÁSCARAS E LENTES',
-        'LOADERS E MAGAZINES',
-        'CINTOS PARA PODS & CILINDRO',
-        'PROJÉTEIS PAINTBALL',
-        'PEÇAS DE REPOSIÇÃO',
-        'CUSTOMIZAÇÃO & TUNE-UP'
+        'MÁSCARAS Y LENTES',
+        'LOADERS Y CARGADORES',
+        'CINTURONES PARA PODS Y CILINDROS',
+        'PROYECTILES PAINTBALL',
+        'REPUESTOS',
+        'CUSTOMIZACIÓN & TUNE-UP'
       ] 
     },
-    { name: 'ÓTICA E ILUMINAÇÃO', subcategories: ['LUNETAS', 'RED DOTS', 'LANTERNAS'] },
+    { name: 'ÓPTICA E ILUMINACIÓN', subcategories: ['MIRAS TELESCÓPICAS', 'RED DOTS', 'LINTERNAS'] },
     { name: 'FITNESS & RECOVERY', subcategories: [] },
-    { name: 'BOAT, FISHING, ENERGY & SURVIVAL', subcategories: [] }
+    { name: 'BOTE, PESCA, ENERGÍA Y SUPERVIVENCIA', subcategories: [] }
   ];
 
   return (

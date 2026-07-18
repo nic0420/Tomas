@@ -5,4 +5,4 @@ export const PROFIT_MARGIN_PERCENTAGE = 20; // Valor por defecto
 export const GOOGLE_SHEETS_CSV_URL = "/productos.csv"; // Apuntando al CSV local en la carpeta public
 
 // WhatsApp number for checkout
-export const WHATSAPP_NUMBER = "5493795769425";
+export const WHATSAPP_NUMBER = "5493757545877";

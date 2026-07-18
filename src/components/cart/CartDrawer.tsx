@@ -2,24 +2,25 @@ import { X, Minus, Plus, ShoppingBag } from 'lucide-react';
 import { useState } from 'react';
 import { useCartStore } from '../../store/useCartStore';
 import { useProductStore } from '../../store/useProductStore';
-import { useAdminStore } from '../../store/useAdminStore';
 import { calculateARSPrice, formatCurrency } from '../../lib/utils';
 import { WHATSAPP_NUMBER } from '../../config/constants';
-
+import { useAuthStore } from '../../store/useAuthStore';
+import { useAdminStore } from '../../store/useAdminStore';
 export function CartDrawer() {
   const { isCartOpen, toggleCart, items, updateQuantity, removeFromCart, clearCart } = useCartStore();
   const { dolarBlue } = useProductStore();
-  const { addOrder } = useAdminStore();
+  const { user } = useAuthStore();
 
-  const [customerName, setCustomerName] = useState('');
-  const [customerPhone, setCustomerPhone] = useState('');
+  const [customerName, setCustomerName] = useState(user?.name || '');
+  const [customerPhone, setCustomerPhone] = useState(user?.phone || '');
+  const [customerAddress, setCustomerAddress] = useState(user?.address || '');
   const [errorMsg, setErrorMsg] = useState('');
 
   const totalArs = items.reduce((acc, item) => {
     return acc + (calculateARSPrice(item.product.precio_usd, dolarBlue) * item.quantity);
   }, 0);
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (items.length === 0) return;
     if (!customerName.trim() || !customerPhone.trim()) {
       setErrorMsg('Por favor completa tus datos para finalizar.');
@@ -27,20 +28,39 @@ export function CartDrawer() {
     }
     setErrorMsg('');
 
-    // Log the order in Admin Store
     const totalUsd = items.reduce((acc, item) => acc + (item.product.precio_usd * item.quantity), 0);
-    addOrder({
+    const orderData = {
+      date: new Date().toISOString(),
       customerName: customerName,
       customerPhone: customerPhone,
+      customerAddress: customerAddress,
+      userId: user ? user.id : null,
       totalArs,
       totalUsd,
-      items: [...items],
-      status: 'Pendiente'
-    });
+      items: items.map(item => ({
+        id: item.product.id,
+        name: item.product.nombre_producto,
+        priceUsd: item.product.precio_usd,
+        quantity: item.quantity
+      })),
+      status: 'pending'
+    };
+
+    try {
+      const { collection, addDoc } = await import('firebase/firestore');
+      const { db } = await import('../../config/firebase');
+      await addDoc(collection(db, 'orders'), orderData);
+    } catch (e) {
+      console.error("Error saving order: ", e);
+    }
 
     let message = `*NUEVO PEDIDO - TOMMY GUNS*\n\n`;
     message += `*Cliente:* ${customerName}\n`;
-    message += `*Teléfono:* ${customerPhone}\n\n`;
+    message += `*Teléfono:* ${customerPhone}\n`;
+    if (customerAddress) {
+      message += `*Dirección:* ${customerAddress}\n`;
+    }
+    message += `\n`;
     
     items.forEach(item => {
       const price = calculateARSPrice(item.product.precio_usd, dolarBlue);
@@ -163,6 +183,13 @@ export function CartDrawer() {
                 placeholder="Teléfono" 
                 value={customerPhone}
                 onChange={(e) => setCustomerPhone(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-brand-green"
+              />
+              <input 
+                type="text" 
+                placeholder="Dirección de envío (Opcional)" 
+                value={customerAddress}
+                onChange={(e) => setCustomerAddress(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-brand-green"
               />
             </div>

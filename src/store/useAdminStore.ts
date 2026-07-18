@@ -1,24 +1,35 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Product } from './useCartStore';
+import { db } from '../config/firebase';
+import { collection, query, orderBy, getDocs, updateDoc, doc } from 'firebase/firestore';
 
 export interface Order {
   id: string;
   date: string;
   customerName: string;
   customerPhone: string;
+  customerAddress?: string;
+  userId?: string | null;
   totalArs: number;
   totalUsd: number;
-  items: { product: Product; quantity: number }[];
-  status: 'Pendiente' | 'Pagado' | 'Enviado' | 'Cancelado';
+  items: { 
+    id: string;
+    name: string;
+    priceUsd: number;
+    quantity: number;
+  }[];
+  status: 'pending' | 'Pagado' | 'Enviado' | 'Cancelado';
 }
 
 interface AdminState {
   orders: Order[];
   customDolarBlue: number | null;
   localProducts: Product[] | null;
-  addOrder: (order: Omit<Order, 'id' | 'date'>) => void;
-  updateOrderStatus: (orderId: string, status: Order['status']) => void;
+  isLoadingOrders: boolean;
+  
+  fetchOrders: () => Promise<void>;
+  updateOrderStatus: (orderId: string, status: Order['status']) => Promise<void>;
   setCustomDolarBlue: (rate: number | null) => void;
   setLocalProducts: (products: Product[]) => void;
   updateProduct: (productId: string, updates: Partial<Product>) => void;
@@ -27,25 +38,41 @@ interface AdminState {
 
 export const useAdminStore = create<AdminState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       orders: [],
       customDolarBlue: null,
       localProducts: null,
+      isLoadingOrders: false,
 
-      addOrder: (orderData) => set((state) => ({
-        orders: [
-          {
-            ...orderData,
-            id: `ORD-${Date.now()}`,
-            date: new Date().toISOString(),
-          },
-          ...state.orders
-        ]
-      })),
+      fetchOrders: async () => {
+        set({ isLoadingOrders: true });
+        try {
+          const q = query(collection(db, 'orders'), orderBy('date', 'desc'));
+          const snapshot = await getDocs(q);
+          const fetchedOrders = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          })) as Order[];
+          set({ orders: fetchedOrders });
+        } catch (error) {
+          console.error("Error fetching admin orders: ", error);
+        } finally {
+          set({ isLoadingOrders: false });
+        }
+      },
 
-      updateOrderStatus: (orderId, status) => set((state) => ({
-        orders: state.orders.map(o => o.id === orderId ? { ...o, status } : o)
-      })),
+      updateOrderStatus: async (orderId, status) => {
+        try {
+          const orderRef = doc(db, 'orders', orderId);
+          await updateDoc(orderRef, { status });
+          // Update local state optimistically
+          set((state) => ({
+            orders: state.orders.map(o => o.id === orderId ? { ...o, status } : o)
+          }));
+        } catch (error) {
+          console.error("Error updating order status: ", error);
+        }
+      },
 
       setCustomDolarBlue: (rate) => set({ customDolarBlue: rate }),
 
@@ -67,6 +94,7 @@ export const useAdminStore = create<AdminState>()(
     }),
     {
       name: 'tomas-admin-storage',
+      // We don't want to persist orders if they are fetched from firestore, but it's okay, they get overwritten by fetch
     }
   )
 );
