@@ -125,13 +125,13 @@ export function Dashboard() {
                         value={order.status}
                         onChange={(e) => handleStatusChange(order.id, e.target.value as Order['status'])}
                         className={`px-3 py-2 rounded font-bold uppercase tracking-wider text-xs border outline-none cursor-pointer transition-colors
-                          ${order.status === 'Pendiente' ? 'bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100' : ''}
+                          ${order.status === 'pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100' : ''}
                           ${order.status === 'Pagado' ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100' : ''}
                           ${order.status === 'Enviado' ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100' : ''}
                           ${order.status === 'Cancelado' ? 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100' : ''}
                         `}
                       >
-                        <option value="Pendiente">Pendiente</option>
+                        <option value="pending">Pendiente</option>
                         <option value="Pagado">Pagado</option>
                         <option value="Enviado">Enviado</option>
                         <option value="Cancelado">Cancelado</option>

@@ -5,7 +5,6 @@ import { useProductStore } from '../../store/useProductStore';
 import { calculateARSPrice, formatCurrency } from '../../lib/utils';
 import { WHATSAPP_NUMBER } from '../../config/constants';
 import { useAuthStore } from '../../store/useAuthStore';
-import { useAdminStore } from '../../store/useAdminStore';
 export function CartDrawer() {
   const { isCartOpen, toggleCart, items, updateQuantity, removeFromCart, clearCart } = useCartStore();
   const { dolarBlue } = useProductStore();
