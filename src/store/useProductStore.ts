@@ -31,11 +31,13 @@ interface ProductState {
   selectedProduct: Product | null;
   searchQuery: string;
   sortBy: string;
+  selectedCategory: string | null;
   fetchProducts: () => Promise<void>;
   fetchDolarBlue: () => Promise<void>;
   setSelectedProduct: (product: Product | null) => void;
   setSearchQuery: (query: string) => void;
   setSortBy: (sort: string) => void;
+  setSelectedCategory: (category: string | null) => void;
 }
 
 export const useProductStore = create<ProductState>((set) => ({
@@ -47,10 +49,12 @@ export const useProductStore = create<ProductState>((set) => ({
   selectedProduct: null,
   searchQuery: '',
   sortBy: 'none',
+  selectedCategory: null,
 
   setSearchQuery: (query) => set({ searchQuery: query }),
   setSortBy: (sort) => set({ sortBy: sort }),
   setSelectedProduct: (product) => set({ selectedProduct: product }),
+  setSelectedCategory: (category) => set({ selectedCategory: category, selectedProduct: null }),
 
   fetchDolarBlue: async () => {
     try {

@@ -4,7 +4,7 @@ import { useProductStore } from '../../store/useProductStore';
 import type { Product } from '../../store/useCartStore';
 
 export function HeroSlider() {
-  const { products } = useProductStore();
+  const { products, setSelectedProduct } = useProductStore();
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [randomProducts, setRandomProducts] = useState<Product[]>([]);
 
@@ -40,7 +40,11 @@ export function HeroSlider() {
     <div className="overflow-hidden bg-brand-dark relative border-b-4 border-brand-gold" ref={emblaRef}>
       <div className="flex">
         {slides.map((product) => (
-          <div className="flex-[0_0_100%] min-w-0 relative h-[300px] md:h-[400px] lg:h-[500px]" key={product.id}>
+          <div 
+            className="flex-[0_0_100%] min-w-0 relative h-[300px] md:h-[400px] lg:h-[500px] cursor-pointer" 
+            key={product.id}
+            onClick={() => setSelectedProduct(product)}
+          >
             
             {/* Background Image (Blurred & Darkened) */}
             <div 

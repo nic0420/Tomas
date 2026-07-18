@@ -3,15 +3,10 @@ import { ProductCard } from './ProductCard';
 import { useProductStore } from '../../store/useProductStore';
 import { PackageOpen, ChevronRight, ChevronLeft } from 'lucide-react';
 
-interface ProductGridProps {
-  selectedCategory: string | null;
-  onSelectCategory?: (category: string | null) => void;
-}
-
 const ITEMS_PER_PAGE = 20;
 
-export function ProductGrid({ selectedCategory, onSelectCategory }: ProductGridProps) {
-  const { products, isLoading, error, categories, searchQuery, sortBy, setSortBy } = useProductStore();
+export function ProductGrid() {
+  const { products, isLoading, error, categories, searchQuery, sortBy, setSortBy, selectedCategory, setSelectedCategory } = useProductStore();
   const [currentPage, setCurrentPage] = useState(1);
 
   // Reset page when category or search or sort changes
@@ -45,7 +40,11 @@ export function ProductGrid({ selectedCategory, onSelectCategory }: ProductGridP
   // 1. Filter by category
   let displayProducts = products;
   if (selectedCategory) {
-    displayProducts = displayProducts.filter(p => p.categoria === selectedCategory);
+    const searchCat = selectedCategory.toLowerCase();
+    displayProducts = displayProducts.filter(p => 
+      p.categoria.toLowerCase() === searchCat || 
+      p.nombre_producto.toLowerCase().includes(searchCat)
+    );
   }
 
   // 2. Filter by search query
@@ -79,9 +78,9 @@ export function ProductGrid({ selectedCategory, onSelectCategory }: ProductGridP
                 <h2 className="text-xl md:text-2xl font-black text-brand-dark uppercase tracking-wide">
                   LO MEJOR EN {category}
                 </h2>
-                {onSelectCategory && (
+                {setSelectedCategory && (
                   <button 
-                    onClick={() => onSelectCategory(category)}
+                    onClick={() => setSelectedCategory(category)}
                     className="text-xs md:text-sm font-bold text-brand-green flex items-center hover:underline uppercase tracking-wider whitespace-nowrap"
                   >
                     Ver todos <ChevronRight className="w-4 h-4 ml-1" />
@@ -121,7 +120,7 @@ export function ProductGrid({ selectedCategory, onSelectCategory }: ProductGridP
           <button 
             onClick={() => {
               useProductStore.getState().setSearchQuery('');
-              if (onSelectCategory) onSelectCategory(null);
+              setSelectedCategory(null);
             }}
             className="mt-4 text-brand-green font-bold hover:underline"
           >
@@ -139,10 +138,10 @@ export function ProductGrid({ selectedCategory, onSelectCategory }: ProductGridP
           <div className="flex items-center gap-2 mb-1">
             {selectedCategory && (
               <button 
-                onClick={() => onSelectCategory && onSelectCategory(null)}
-                className="text-xs text-gray-500 hover:text-brand-green font-bold uppercase tracking-wider flex items-center"
+                onClick={() => setSelectedCategory(null)}
+                className="text-brand-green hover:underline uppercase tracking-wider text-xs font-bold"
               >
-                <ChevronLeft size={14} className="mr-1"/> VER TODAS LAS CATEGORÍAS
+                Volver a todos
               </button>
             )}
           </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useProductStore } from '../../store/useProductStore';
 import { Header } from '../../components/layout/Header';
@@ -13,13 +13,7 @@ import { ProductDetail } from '../../components/product/ProductDetail';
 import { CartDrawer } from '../../components/cart/CartDrawer';
 
 export function Store() {
-  const { fetchProducts, fetchDolarBlue, selectedProduct, setSelectedProduct } = useProductStore();
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-
-  const handleSelectCategory = (cat: string | null) => {
-    setSelectedCategory(cat);
-    setSelectedProduct(null);
-  };
+  const { fetchProducts, fetchDolarBlue, selectedProduct, selectedCategory } = useProductStore();
 
   useEffect(() => {
     fetchProducts();
@@ -43,10 +37,7 @@ export function Store() {
       <div className="relative z-10 flex flex-col min-h-screen">
         <FloatingSocial />
         <Header />
-        <CategoryNav 
-          selectedCategory={selectedCategory} 
-          onSelectCategory={handleSelectCategory} 
-        />
+        <CategoryNav />
         
         <main className="flex-1 flex flex-col">
         {selectedProduct ? (
@@ -59,10 +50,7 @@ export function Store() {
             <div className="container mx-auto px-4 py-8 flex-1">
               {selectedCategory === null && <BannersGrid />}
               
-              <ProductGrid 
-                selectedCategory={selectedCategory} 
-                onSelectCategory={handleSelectCategory}
-              />
+              <ProductGrid />
               
               {selectedCategory === null && <BrandsCarousel />}
             </div>

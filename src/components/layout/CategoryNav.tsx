@@ -2,13 +2,8 @@ import { useState } from 'react';
 import { Menu, ChevronDown } from 'lucide-react';
 import { useProductStore } from '../../store/useProductStore';
 
-interface CategoryNavProps {
-  selectedCategory: string | null;
-  onSelectCategory: (category: string | null) => void;
-}
-
-export function CategoryNav({ selectedCategory, onSelectCategory }: CategoryNavProps) {
-  const { categories } = useProductStore();
+export function CategoryNav() {
+  const { categories, selectedCategory, setSelectedCategory } = useProductStore();
   const [isMainDropdownOpen, setIsMainDropdownOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
@@ -52,7 +47,7 @@ export function CategoryNav({ selectedCategory, onSelectCategory }: CategoryNavP
           {isMainDropdownOpen && (
             <div className="absolute top-full left-0 w-full bg-white shadow-xl border-x border-b border-gray-200 py-2 z-50">
               <button 
-                onClick={() => { onSelectCategory(null); setIsMainDropdownOpen(false); }}
+                onClick={() => { setSelectedCategory(null); setIsMainDropdownOpen(false); }}
                 className="w-full text-left px-6 py-3 text-sm font-bold text-gray-700 hover:bg-gray-50 hover:text-brand-green transition-colors"
               >
                 VER TODOS
@@ -60,7 +55,7 @@ export function CategoryNav({ selectedCategory, onSelectCategory }: CategoryNavP
               {categories.map((category) => (
                 <button
                   key={category}
-                  onClick={() => { onSelectCategory(category); setIsMainDropdownOpen(false); }}
+                  onClick={() => { setSelectedCategory(category); setIsMainDropdownOpen(false); }}
                   className="w-full text-left px-6 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-brand-green transition-colors border-t border-gray-100 uppercase"
                 >
                   {category}
@@ -80,7 +75,7 @@ export function CategoryNav({ selectedCategory, onSelectCategory }: CategoryNavP
               onMouseLeave={() => setActiveMenu(null)}
             >
               <button
-                onClick={() => onSelectCategory(menu.name)}
+                onClick={() => setSelectedCategory(menu.name)}
                 className={`h-full px-2 lg:px-3 flex items-center gap-1 transition-colors hover:text-brand-green border-b-2 border-transparent hover:border-brand-green ${
                   selectedCategory === menu.name ? 'text-brand-green border-brand-green' : ''
                 }`}
@@ -96,7 +91,7 @@ export function CategoryNav({ selectedCategory, onSelectCategory }: CategoryNavP
                       <button
                         key={idx}
                         onClick={() => {
-                          onSelectCategory(sub);
+                          setSelectedCategory(sub);
                           setActiveMenu(null);
                         }}
                         className="text-left text-gray-500 hover:text-brand-green font-medium text-xs tracking-wide transition-colors"

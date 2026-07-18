@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useProductStore } from '../../store/useProductStore';
 
 function CategoryBanner({ title, query, className = '' }: { title: string, query: string, className?: string }) {
-  const { products } = useProductStore();
+  const { products, setSelectedCategory } = useProductStore();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const categoryImages = useMemo(() => {
@@ -31,7 +31,10 @@ function CategoryBanner({ title, query, className = '' }: { title: string, query
   }, [categoryImages]);
 
   return (
-    <div className={`group overflow-hidden rounded-sm cursor-pointer relative h-[250px] md:h-[300px] bg-white border border-gray-200 flex items-center justify-center ${className}`}>
+    <div 
+      className={`group overflow-hidden rounded-sm cursor-pointer relative h-[250px] md:h-[300px] bg-white border border-gray-200 flex items-center justify-center ${className}`}
+      onClick={() => setSelectedCategory(title)}
+    >
       {categoryImages.length > 0 ? (
         categoryImages.map((img, idx) => (
           <img 

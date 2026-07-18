@@ -1,4 +1,5 @@
-import { ShoppingCart, Menu, User, Phone, DollarSign } from 'lucide-react';
+import { useState, useMemo, useRef, useEffect } from 'react';
+import { ShoppingCart, Menu, User, Phone, DollarSign, ChevronRight } from 'lucide-react';
 import { useCartStore } from '../../store/useCartStore';
 import { useProductStore } from '../../store/useProductStore';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -6,9 +7,52 @@ import { Link } from 'react-router-dom';
 
 export function Header() {
   const { toggleCart, items } = useCartStore();
-  const { dolarBlue } = useProductStore();
+  const { dolarBlue, products, categories, searchQuery, setSearchQuery, setSelectedProduct, setSelectedCategory } = useProductStore();
   const { isAuthenticated, user } = useAuthStore();
   const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
+
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsSearchFocused(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const searchSuggestions = useMemo(() => {
+    if (!searchQuery.trim() || searchQuery.length < 2) return { products: [], categories: [] };
+    
+    const query = searchQuery.toLowerCase();
+    
+    // Find matching categories
+    const matchedCategories = categories.filter(c => c.toLowerCase().includes(query)).slice(0, 3);
+    
+    // Find matching products
+    const matchedProducts = products.filter(p => 
+      p.nombre_producto.toLowerCase().includes(query) || 
+      p.categoria.toLowerCase().includes(query)
+    ).slice(0, 5);
+
+    return { products: matchedProducts, categories: matchedCategories };
+  }, [searchQuery, products, categories]);
+
+  const handleSelectCategory = (cat: string) => {
+    setSelectedCategory(cat);
+    setSearchQuery('');
+    setIsSearchFocused(false);
+  };
+
+  const handleSelectProduct = (product: any) => {
+    setSelectedProduct(product);
+    setSearchQuery('');
+    setIsSearchFocused(false);
+  };
 
   return (
     <header className="w-full bg-white font-sans">
@@ -66,20 +110,76 @@ export function Header() {
           </a>
         </div>
 
-        {/* Search Bar - Huge like Arsenal */}
-        <div className="hidden lg:flex flex-1 max-w-3xl relative">
-          <div className="flex w-full border-2 border-brand-green rounded-full overflow-hidden">
+        {/* Search Bar - Intelligent */}
+        <div className="hidden lg:flex flex-1 max-w-3xl relative" ref={searchRef}>
+          <div className={`flex w-full border-2 ${isSearchFocused ? 'border-brand-dark' : 'border-brand-green'} rounded-full overflow-hidden transition-colors bg-white z-50`}>
             <input
               type="text"
-              placeholder="Escribe lo que buscas..."
-              value={useProductStore((state) => state.searchQuery)}
-              onChange={(e) => useProductStore.getState().setSearchQuery(e.target.value)}
-              className="w-full bg-white py-3 px-5 text-[13px] text-gray-700 focus:outline-none font-medium"
+              placeholder="Escribe lo que buscas (ej: pistola, airsoft)..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setIsSearchFocused(true)}
+              className="w-full bg-transparent py-3 px-5 text-[13px] text-gray-700 focus:outline-none font-medium"
             />
             <button className="bg-brand-green text-white px-8 hover:bg-brand-dark transition-colors flex items-center justify-center font-bold text-sm uppercase tracking-wide">
               Buscar
             </button>
           </div>
+
+          {/* Suggestions Dropdown */}
+          {isSearchFocused && searchQuery.length >= 2 && (
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-2xl border border-gray-100 z-50 overflow-hidden">
+              {searchSuggestions.categories.length > 0 && (
+                <div className="p-3 border-b border-gray-100 bg-gray-50">
+                  <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-2">Categorías Sugeridas</h4>
+                  {searchSuggestions.categories.map(cat => (
+                    <button
+                      key={cat}
+                      onClick={() => handleSelectCategory(cat)}
+                      className="w-full text-left px-2 py-1.5 hover:bg-white hover:text-brand-green rounded text-sm font-semibold flex items-center justify-between group transition-colors"
+                    >
+                      {cat}
+                      <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </button>
+                  ))}
+                </div>
+              )}
+              
+              <div className="p-3">
+                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-2">Productos</h4>
+                {searchSuggestions.products.length > 0 ? (
+                  <div className="space-y-1">
+                    {searchSuggestions.products.map(product => (
+                      <button
+                        key={product.id}
+                        onClick={() => handleSelectProduct(product)}
+                        className="w-full flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors text-left"
+                      >
+                        <div className="w-10 h-10 bg-white border border-gray-200 rounded flex-shrink-0 p-1">
+                          <img src={product.imagen_url} alt={product.nombre_producto} className="w-full h-full object-contain" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-gray-700 truncate">{product.nombre_producto}</p>
+                          <p className="text-brand-green font-black text-xs">US$ {product.precio_usd.toFixed(2)}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 px-2 py-4 text-center">No hay productos que coincidan.</p>
+                )}
+              </div>
+              
+              {searchSuggestions.products.length > 0 && (
+                <button 
+                  onClick={() => setIsSearchFocused(false)}
+                  className="w-full p-3 bg-brand-green/10 text-brand-green font-bold text-xs uppercase tracking-widest hover:bg-brand-green hover:text-white transition-colors text-center"
+                >
+                  Ver todos los resultados para "{searchQuery}"
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Contact & Cart */}
