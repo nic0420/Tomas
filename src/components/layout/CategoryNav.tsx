@@ -26,7 +26,6 @@ export function CategoryNav() {
       ] 
     },
     { name: 'ÓPTICA E ILUMINACIÓN', subcategories: ['MIRAS TELESCÓPICAS', 'RED DOTS', 'LINTERNAS'] },
-    { name: 'FITNESS & RECOVERY', subcategories: [] },
     { name: 'BOTE, PESCA, ENERGÍA Y SUPERVIVENCIA', subcategories: [] }
   ];
 
