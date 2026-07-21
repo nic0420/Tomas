@@ -45,14 +45,6 @@ export function CartDrawer() {
       status: 'pending'
     };
 
-    try {
-      const { collection, addDoc } = await import('firebase/firestore');
-      const { db } = await import('../../config/firebase');
-      await addDoc(collection(db, 'orders'), orderData);
-    } catch (e) {
-      console.error("Error saving order: ", e);
-    }
-
     let message = `*NUEVO PEDIDO - TOMMY GUNS*\n\n`;
     message += `*Cliente:* ${customerName}\n`;
     message += `*Teléfono:* ${customerPhone}\n`;
@@ -72,7 +64,22 @@ export function CartDrawer() {
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
     
-    window.open(whatsappUrl, '_blank');
+    // Abre la ventana ANTES de la operación asíncrona para evitar el bloqueador de popups en móviles
+    const newWindow = window.open('about:blank', '_blank');
+
+    try {
+      const { collection, addDoc } = await import('firebase/firestore');
+      const { db } = await import('../../config/firebase');
+      await addDoc(collection(db, 'orders'), orderData);
+    } catch (e) {
+      console.error("Error saving order: ", e);
+    }
+    
+    if (newWindow) {
+      newWindow.location.href = whatsappUrl;
+    } else {
+      window.location.href = whatsappUrl;
+    }
   };
 
   if (!isCartOpen) return null;

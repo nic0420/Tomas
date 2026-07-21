@@ -4,6 +4,7 @@ import { useCartStore } from '../../store/useCartStore';
 import { useProductStore } from '../../store/useProductStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { Link } from 'react-router-dom';
+import { WHATSAPP_NUMBER } from '../../config/constants';
 
 export function Header() {
   const { toggleCart, items } = useCartStore();
@@ -78,7 +79,7 @@ export function Header() {
               </Link>
             )}
             <span className="text-gray-300">|</span>
-            <a href="#" className="hover:text-brand-gold transition-colors flex items-center gap-1"><Phone size={12}/> CONTACTO</a>
+            <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer" className="hover:text-brand-gold transition-colors flex items-center gap-1"><Phone size={12}/> CONTACTO</a>
             <span className="text-gray-300">|</span>
             <a href="https://www.instagram.com/tommygunsctes" target="_blank" rel="noreferrer" className="hover:text-brand-gold flex items-center gap-1 transition-colors">
               INSTAGRAM

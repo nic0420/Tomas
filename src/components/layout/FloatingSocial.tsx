@@ -5,15 +5,6 @@ export function FloatingSocial() {
   return (
     <div className="fixed right-0 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2 p-2 bg-white/80 backdrop-blur-sm shadow-[-2px_0_10px_rgba(0,0,0,0.1)] rounded-l-lg border border-r-0 border-gray-200">
       <a 
-        href="#" 
-        target="_blank" 
-        rel="noreferrer"
-        className="w-10 h-10 rounded-full flex items-center justify-center text-[#1877F2] hover:bg-[#1877F2] hover:text-white transition-all shadow-sm"
-        aria-label="Facebook"
-      >
-        <Facebook size={20} strokeWidth={2.5} />
-      </a>
-      <a 
         href="https://www.instagram.com/tommygunsctes" 
         target="_blank" 
         rel="noreferrer"
@@ -21,15 +12,6 @@ export function FloatingSocial() {
         aria-label="Instagram"
       >
         <Instagram size={20} strokeWidth={2.5} />
-      </a>
-      <a 
-        href="#" 
-        target="_blank" 
-        rel="noreferrer"
-        className="w-10 h-10 rounded-full flex items-center justify-center text-[#FF0000] hover:bg-[#FF0000] hover:text-white transition-all shadow-sm"
-        aria-label="YouTube"
-      >
-        <Youtube size={20} strokeWidth={2.5} />
       </a>
       <a 
         href={`https://wa.me/${WHATSAPP_NUMBER}`} 
