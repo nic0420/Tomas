@@ -9,7 +9,6 @@ const CATEGORIES = [
   { name: 'Paintball', url: 'https://www.arsenalsports.com/produtos/paintball/filter?d=307' },
   { name: 'Óptica e Iluminación', url: 'https://www.arsenalsports.com/produtos/otica-e-iluminacao/filter?d=273' },
   { name: 'Outdoor & Survival', url: 'https://www.arsenalsports.com/produtos/boat-fishing-energy--survival/filter?d=540' },
-  { name: 'Deportes y Ocio', url: 'https://www.arsenalsports.com/produtos/esportes-e-lazer/filter?d=1551' },
   { name: 'Ofertas', url: 'https://www.arsenalsports.com/produtos/ofertas-e-promocoes/filter?d=635' }
 ];
 

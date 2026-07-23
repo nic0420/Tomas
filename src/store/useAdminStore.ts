@@ -34,6 +34,7 @@ interface AdminState {
   setLocalProducts: (products: Product[]) => void;
   updateProduct: (productId: string, updates: Partial<Product>) => void;
   addProduct: (product: Product) => void;
+  deleteProduct: (productId: string) => void;
 }
 
 export const useAdminStore = create<AdminState>()(
@@ -89,6 +90,13 @@ export const useAdminStore = create<AdminState>()(
         const list = state.localProducts || [];
         return {
           localProducts: [product, ...list]
+        };
+      }),
+
+      deleteProduct: (productId) => set((state) => {
+        if (!state.localProducts) return state;
+        return {
+          localProducts: state.localProducts.filter(p => p.id !== productId)
         };
       })
     }),

@@ -26,7 +26,7 @@ export function CategoryNav() {
       ] 
     },
     { name: 'ÓPTICA E ILUMINACIÓN', subcategories: ['MIRAS TELESCÓPICAS', 'RED DOTS', 'LINTERNAS'] },
-    { name: 'BOTE, PESCA, ENERGÍA Y SUPERVIVENCIA', subcategories: [] }
+    { name: 'BOTE, PESCA, ENERGÍA Y SUPERVIVENCIA', filterName: 'Outdoor & Survival', subcategories: [] }
   ];
 
   const handleCategorySelect = (catName: string) => {
@@ -92,11 +92,11 @@ export function CategoryNav() {
                     if (menu.subcategories.length > 0 && activeMenu !== menu.name) {
                       setActiveMenu(menu.name); // for mobile tap to open
                     } else {
-                      handleCategorySelect(menu.name);
+                      handleCategorySelect(menu.filterName || menu.name);
                     }
                   }}
                   className={`h-full px-3 md:px-2 lg:px-3 py-3 md:py-0 flex items-center gap-1 transition-colors hover:text-brand-green border-b-2 border-transparent hover:border-brand-green whitespace-nowrap ${
-                    selectedCategory === menu.name ? 'text-brand-green border-brand-green' : ''
+                    selectedCategory === (menu.filterName || menu.name) ? 'text-brand-green border-brand-green' : ''
                   }`}
                 >
                   {menu.name} {menu.subcategories.length > 0 && <ChevronDown size={14} className="opacity-50" />}

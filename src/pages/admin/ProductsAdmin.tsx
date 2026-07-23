@@ -1,12 +1,12 @@
 import { useState, useRef } from 'react';
 import { useAdminStore } from '../../store/useAdminStore';
 import { useProductStore } from '../../store/useProductStore';
-import { Search, Upload, Edit, ChevronLeft, ChevronRight, Save, X, RefreshCw, Plus } from 'lucide-react';
+import { Search, Upload, Edit, ChevronLeft, ChevronRight, Save, X, RefreshCw, Plus, Trash2 } from 'lucide-react';
 import type { Product } from '../../store/useCartStore';
 import Papa from 'papaparse';
 
 export function ProductsAdmin() {
-  const { localProducts, setLocalProducts, updateProduct, addProduct } = useAdminStore();
+  const { localProducts, setLocalProducts, updateProduct, addProduct, deleteProduct } = useAdminStore();
   const { products, fetchProducts } = useProductStore();
   
   // Use localProducts if available, otherwise fallback to the store's products (from Google Sheets)
@@ -89,6 +89,9 @@ export function ProductsAdmin() {
       nombre_producto: product.nombre_producto,
       precio_usd: product.precio_usd,
       categoria: product.categoria,
+      imagen_url: product.imagen_url,
+      descripcion: product.descripcion,
+      caracteristicas: product.caracteristicas,
     });
   };
 
@@ -113,7 +116,17 @@ export function ProductsAdmin() {
       nombre_producto: '',
       categoria: '',
       precio_usd: 0,
+      imagen_url: 'https://via.placeholder.com/300?text=Nuevo+Producto',
+      descripcion: '',
+      caracteristicas: '',
     });
+  };
+
+  const handleDelete = (productId: string) => {
+    if (confirm('¿Estás seguro de que deseas eliminar este producto permanentemente?')) {
+      deleteProduct(productId);
+      fetchProducts();
+    }
   };
 
   const saveEdit = () => {
@@ -124,6 +137,9 @@ export function ProductsAdmin() {
           nombre_producto: editForm.nombre_producto || 'Sin Nombre',
           precio_usd: editForm.precio_usd || 0,
           categoria: editForm.categoria || 'Otros',
+          imagen_url: editForm.imagen_url || 'https://via.placeholder.com/300?text=Nuevo+Producto',
+          descripcion: editForm.descripcion || '',
+          caracteristicas: editForm.caracteristicas || '',
         } as Product);
       } else {
         updateProduct(editingProduct.id, editForm);
@@ -241,12 +257,21 @@ export function ProductsAdmin() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       {localProducts ? (
-                        <button 
-                          onClick={() => openEditModal(product)}
-                          className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-brand-dark font-bold rounded-lg transition-colors inline-flex items-center gap-2 uppercase tracking-widest text-xs"
-                        >
-                          <Edit size={14} /> Editar
-                        </button>
+                        <div className="flex items-center gap-2 justify-end">
+                          <button 
+                            onClick={() => openEditModal(product)}
+                            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-brand-dark font-bold rounded-lg transition-colors inline-flex items-center gap-2 uppercase tracking-widest text-xs"
+                          >
+                            <Edit size={14} /> Editar
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(product.id)}
+                            className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors inline-flex items-center justify-center"
+                            title="Eliminar"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
                       ) : (
                         <span className="text-xs text-gray-400 italic">Sube un CSV para editar</span>
                       )}
@@ -325,6 +350,34 @@ export function ProductsAdmin() {
                     className="w-full px-4 py-2 border border-gray-300 rounded focus:border-brand-green focus:ring-1 focus:ring-brand-green outline-none"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">URL de la Imagen</label>
+                <input 
+                  type="text" 
+                  value={editForm.imagen_url || ''}
+                  onChange={(e) => setEditForm({...editForm, imagen_url: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded focus:border-brand-green focus:ring-1 focus:ring-brand-green outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Descripción</label>
+                <textarea 
+                  value={editForm.descripcion || ''}
+                  onChange={(e) => setEditForm({...editForm, descripcion: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded focus:border-brand-green focus:ring-1 focus:ring-brand-green outline-none h-24 resize-y"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Características</label>
+                <textarea 
+                  value={editForm.caracteristicas || ''}
+                  onChange={(e) => setEditForm({...editForm, caracteristicas: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded focus:border-brand-green focus:ring-1 focus:ring-brand-green outline-none h-24 resize-y"
+                />
               </div>
             </div>
 
