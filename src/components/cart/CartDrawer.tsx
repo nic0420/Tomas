@@ -80,6 +80,10 @@ export function CartDrawer() {
     } else {
       window.location.href = whatsappUrl;
     }
+
+    // Clear and close cart after checkout
+    clearCart();
+    toggleCart();
   };
 
   if (!isCartOpen) return null;

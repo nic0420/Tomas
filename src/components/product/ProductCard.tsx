@@ -43,7 +43,7 @@ export function ProductCard({ product }: ProductCardProps) {
         />
         
         {/* Quick Add to Cart button (Arsenal style overlay) */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out z-20">
+        <div className="absolute bottom-0 left-0 right-0 p-2 md:p-4 md:translate-y-full md:group-hover:translate-y-0 transition-transform duration-300 ease-out z-20">
           <button
             onClick={(e) => { e.preventDefault(); addToCart(product); }}
             className="w-full bg-brand-green hover:bg-brand-dark text-white font-bold uppercase tracking-wider text-xs py-3 rounded-sm flex items-center justify-center gap-2 shadow-lg transition-colors"
