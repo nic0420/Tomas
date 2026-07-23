@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Youtube, MessageCircle } from 'lucide-react';
+import { Instagram, MessageCircle } from 'lucide-react';
 import { WHATSAPP_NUMBER } from '../../config/constants';
 
 export function FloatingSocial() {
