@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import { useProductStore } from '../../store/useProductStore';
 import type { Product } from '../../store/useCartStore';
+import { calculateARSPrice, formatCurrency } from '../../lib/utils';
 
 export function HeroSlider() {
-  const { products, setSelectedProduct } = useProductStore();
+  const { products, setSelectedProduct, dolarBlue } = useProductStore();
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [randomProducts, setRandomProducts] = useState<Product[]>([]);
 
@@ -65,7 +66,7 @@ export function HeroSlider() {
                     {product.nombre_producto}
                   </h2>
                   <p className="text-brand-gold font-bold text-xl md:text-3xl drop-shadow-md">
-                    US$ {product.precio_usd.toFixed(2)}
+                    {formatCurrency(calculateARSPrice(product.precio_usd, dolarBlue))}
                   </p>
                 </div>
 
