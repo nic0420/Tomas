@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAdminStore } from '../../store/useAdminStore';
 import { useProductStore } from '../../store/useProductStore';
 import { Search, Upload, Edit, ChevronLeft, ChevronRight, Save, X, RefreshCw, Plus, Trash2 } from 'lucide-react';
@@ -9,6 +9,10 @@ export function ProductsAdmin() {
   const { localProducts, setLocalProducts, updateProduct, addProduct, deleteProduct } = useAdminStore();
   const { products, fetchProducts } = useProductStore();
   
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
   // Use localProducts if available, otherwise fallback to the store's products (from Google Sheets)
   const displayProducts = localProducts || products;
 
