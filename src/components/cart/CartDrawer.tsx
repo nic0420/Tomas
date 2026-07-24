@@ -64,22 +64,19 @@ export function CartDrawer() {
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
     
-    // Abre la ventana ANTES de la operación asíncrona para evitar el bloqueador de popups en móviles
-    const newWindow = window.open('about:blank', '_blank');
+    // Abrir ventana a Whatsapp inmediatamente para evitar bloqueos
+    window.open(whatsappUrl, '_blank');
 
-    try {
-      const { collection, addDoc } = await import('firebase/firestore');
-      const { db } = await import('../../config/firebase');
-      await addDoc(collection(db, 'orders'), orderData);
-    } catch (e) {
-      console.error("Error saving order: ", e);
-    }
-    
-    if (newWindow) {
-      newWindow.location.href = whatsappUrl;
-    } else {
-      window.location.href = whatsappUrl;
-    }
+    // Intentar guardar el pedido en background sin bloquear
+    (async () => {
+      try {
+        const { collection, addDoc } = await import('firebase/firestore');
+        const { db } = await import('../../config/firebase');
+        await addDoc(collection(db, 'orders'), orderData);
+      } catch (e) {
+        console.error("Error saving order: ", e);
+      }
+    })();
 
     // Clear and close cart after checkout
     clearCart();
