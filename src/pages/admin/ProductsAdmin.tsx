@@ -87,6 +87,13 @@ export function ProductsAdmin() {
   };
 
   const openEditModal = (product: Product) => {
+    if (!localProducts) {
+      if (!confirm('Editar un producto activará el "Modo Edición Local". Dejarás de leer el catálogo de Google Sheets automáticamente hasta que lo restaures. ¿Continuar?')) {
+        return;
+      }
+      setLocalProducts(products);
+    }
+    
     setIsCreating(false);
     setEditingProduct(product);
     setEditForm({
@@ -127,6 +134,13 @@ export function ProductsAdmin() {
   };
 
   const handleDelete = (productId: string) => {
+    if (!localProducts) {
+      if (!confirm('Eliminar un producto activará el "Modo Edición Local". Dejarás de leer el catálogo de Google Sheets automáticamente hasta que lo restaures. ¿Continuar?')) {
+        return;
+      }
+      setLocalProducts(products);
+    }
+    
     if (confirm('¿Estás seguro de que deseas eliminar este producto permanentemente?')) {
       deleteProduct(productId);
       fetchProducts();
@@ -260,25 +274,21 @@ export function ProductsAdmin() {
                       U$S {product.precio_usd.toFixed(2)}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      {localProducts ? (
-                        <div className="flex items-center gap-2 justify-end">
-                          <button 
-                            onClick={() => openEditModal(product)}
-                            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-brand-dark font-bold rounded-lg transition-colors inline-flex items-center gap-2 uppercase tracking-widest text-xs"
-                          >
-                            <Edit size={14} /> Editar
-                          </button>
-                          <button 
-                            onClick={() => handleDelete(product.id)}
-                            className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors inline-flex items-center justify-center"
-                            title="Eliminar"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-gray-400 italic">Sube un CSV para editar</span>
-                      )}
+                      <div className="flex items-center gap-2 justify-end">
+                        <button 
+                          onClick={() => openEditModal(product)}
+                          className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-brand-dark font-bold rounded-lg transition-colors inline-flex items-center gap-2 uppercase tracking-widest text-xs"
+                        >
+                          <Edit size={14} /> Editar
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(product.id)}
+                          className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors inline-flex items-center justify-center"
+                          title="Eliminar"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
