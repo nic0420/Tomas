@@ -1,16 +1,83 @@
+import { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, Settings, LogOut, AlertTriangle } from 'lucide-react';
+import { LayoutDashboard, Package, Settings, LogOut, AlertTriangle, Lock } from 'lucide-react';
 import { useAdminStore } from '../../store/useAdminStore';
 
 export function AdminLayout() {
   const location = useLocation();
   const { customDolarBlue } = useAdminStore();
+  
+  const [isAuthenticated, setIsAuthenticated] = useState(() => 
+    sessionStorage.getItem('adminAuth') === 'true'
+  );
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const menuItems = [
     { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Finanzas y Ventas' },
     { path: '/admin/products', icon: Package, label: 'Productos' },
     { path: '/admin/settings', icon: Settings, label: 'Configuración' },
   ];
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === 'tommyguns123') {
+      setIsAuthenticated(true);
+      sessionStorage.setItem('adminAuth', 'true');
+      setError('');
+    } else {
+      setError('Contraseña incorrecta');
+      setPassword('');
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-brand-dark flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in">
+          <div className="p-8 text-center bg-[#0a0c09] border-b border-[#222]">
+            <div className="w-20 h-20 bg-black rounded-full mx-auto flex items-center justify-center mb-4 shadow-lg border border-[#333]">
+              <Lock className="text-brand-gold w-10 h-10" />
+            </div>
+            <h1 className="text-2xl font-black text-white uppercase tracking-widest">
+              Acceso Restringido
+            </h1>
+            <p className="text-gray-400 mt-2 font-medium text-sm">
+              Ingresa la contraseña de administrador
+            </p>
+          </div>
+          
+          <form onSubmit={handleLogin} className="p-8 space-y-6">
+            <div>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Contraseña"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 outline-none text-center font-bold tracking-widest"
+                autoFocus
+              />
+              {error && <p className="text-red-500 text-sm font-bold text-center mt-2">{error}</p>}
+            </div>
+            
+            <button
+              type="submit"
+              className="w-full bg-brand-green text-white font-black py-3 rounded-lg hover:bg-brand-dark transition-colors uppercase tracking-widest shadow-lg"
+            >
+              Ingresar
+            </button>
+            
+            <div className="text-center mt-6">
+              <Link to="/" className="text-gray-500 hover:text-brand-dark text-sm font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2">
+                <LogOut size={16} />
+                Volver a la Tienda
+              </Link>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f4f5f3] flex font-sans">
