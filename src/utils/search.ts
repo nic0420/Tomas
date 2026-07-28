@@ -1,4 +1,4 @@
-import { Product } from '../store/useCartStore';
+import type { Product } from '../store/useCartStore';
 
 export const normalizeText = (text: string | null | undefined): string => {
   if (!text) return '';
