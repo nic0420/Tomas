@@ -56,8 +56,11 @@ export function ProductCard({ product }: ProductCardProps) {
       
       {/* Info container */}
       <div className="p-5 flex flex-col flex-1 bg-white border-t border-gray-50 group-hover:bg-gray-50/50 transition-colors">
-        <div className="mb-2">
+        <div className="mb-2 flex items-center justify-between">
           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{product.categoria}</span>
+          {product.sku && (
+            <span className="text-[10px] font-medium text-gray-400">SKU: {product.sku}</span>
+          )}
         </div>
         <h3 
           className="text-sm font-semibold text-gray-800 leading-snug mb-4 flex-1 hover:text-brand-green transition-colors cursor-pointer"

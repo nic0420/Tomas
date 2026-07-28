@@ -38,6 +38,7 @@ export function CartDrawer() {
       totalUsd,
       items: items.map(item => ({
         id: item.product.id,
+        sku: item.product.sku,
         name: item.product.nombre_producto,
         priceUsd: item.product.precio_usd,
         quantity: item.quantity
@@ -55,7 +56,8 @@ export function CartDrawer() {
     
     items.forEach(item => {
       const price = calculateARSPrice(item.product.precio_usd, dolarBlue);
-      message += `- ${item.quantity}x ${item.product.nombre_producto} (${formatCurrency(price)})\n`;
+      const skuText = item.product.sku ? `[SKU: ${item.product.sku}] ` : '';
+      message += `- ${item.quantity}x ${skuText}${item.product.nombre_producto} (${formatCurrency(price)})\n`;
     });
     
     message += `\n*TOTAL: ${formatCurrency(totalArs)}*\n\n`;

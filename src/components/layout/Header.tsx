@@ -5,6 +5,7 @@ import { useProductStore } from '../../store/useProductStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { Link } from 'react-router-dom';
 import { WHATSAPP_NUMBER } from '../../config/constants';
+import { searchProducts, searchCategories } from '../../utils/search';
 
 export function Header() {
   const { toggleCart, items } = useCartStore();
@@ -29,16 +30,11 @@ export function Header() {
   const searchSuggestions = useMemo(() => {
     if (!searchQuery.trim() || searchQuery.length < 2) return { products: [], categories: [] };
     
-    const query = searchQuery.toLowerCase();
-    
     // Find matching categories
-    const matchedCategories = categories.filter(c => c.toLowerCase().includes(query)).slice(0, 3);
+    const matchedCategories = searchCategories(categories, searchQuery).slice(0, 3);
     
     // Find matching products
-    const matchedProducts = products.filter(p => 
-      p.nombre_producto.toLowerCase().includes(query) || 
-      p.categoria.toLowerCase().includes(query)
-    ).slice(0, 5);
+    const matchedProducts = searchProducts(products, searchQuery).slice(0, 5);
 
     return { products: matchedProducts, categories: matchedCategories };
   }, [searchQuery, products, categories]);

@@ -58,8 +58,11 @@ export function ProductDetail() {
 
             {/* Right: Buy Box */}
             <div className="w-full lg:w-1/2 p-8 lg:p-12 flex flex-col justify-center">
-              <div className="mb-2">
+              <div className="mb-2 flex items-center justify-between">
                 <span className="text-brand-gold font-bold text-xs uppercase tracking-widest">{selectedProduct.categoria}</span>
+                {selectedProduct.sku && (
+                  <span className="text-sm font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">SKU: {selectedProduct.sku}</span>
+                )}
               </div>
               
               <h1 className="text-2xl lg:text-3xl font-black text-brand-dark leading-tight mb-6">

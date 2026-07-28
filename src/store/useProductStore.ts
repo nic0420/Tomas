@@ -107,6 +107,7 @@ export const useProductStore = create<ProductState>((set) => ({
             if (row.id && row.nombre_producto) {
               const product: Product = {
                 id: row.id,
+                sku: row.sku || "",
                 nombre_producto: row.nombre_producto,
                 categoria: translateCategory(row.categoria || "Otros"),
                 imagen_url: row.imagen_url || "https://via.placeholder.com/150",

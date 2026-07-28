@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ProductCard } from './ProductCard';
 import { useProductStore } from '../../store/useProductStore';
 import { PackageOpen, ChevronRight, ChevronLeft } from 'lucide-react';
+import { searchProducts } from '../../utils/search';
 
 const ITEMS_PER_PAGE = 20;
 
@@ -49,8 +50,7 @@ export function ProductGrid() {
 
   // 2. Filter by search query
   if (searchQuery.trim()) {
-    const q = searchQuery.toLowerCase();
-    displayProducts = displayProducts.filter(p => p.nombre_producto.toLowerCase().includes(q));
+    displayProducts = searchProducts(displayProducts, searchQuery);
   }
 
   // 3. Sort

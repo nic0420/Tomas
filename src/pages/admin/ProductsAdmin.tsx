@@ -4,6 +4,7 @@ import { useProductStore } from '../../store/useProductStore';
 import { Search, Upload, Edit, ChevronLeft, ChevronRight, Save, X, RefreshCw, Plus, Trash2 } from 'lucide-react';
 import type { Product } from '../../store/useCartStore';
 import Papa from 'papaparse';
+import { searchProducts } from '../../utils/search';
 
 export function ProductsAdmin() {
   const { localProducts, setLocalProducts, updateProduct, addProduct, deleteProduct } = useAdminStore();
@@ -27,10 +28,7 @@ export function ProductsAdmin() {
 
   const ITEMS_PER_PAGE = 10;
 
-  const filteredProducts = displayProducts.filter(p => 
-    p.nombre_producto.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    p.categoria.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = searchProducts(displayProducts, searchTerm);
 
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
   const currentProducts = filteredProducts.slice(

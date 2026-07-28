@@ -15,6 +15,7 @@ export interface Order {
   totalUsd: number;
   items: { 
     id: string;
+    sku?: string;
     name: string;
     priceUsd: number;
     quantity: number;

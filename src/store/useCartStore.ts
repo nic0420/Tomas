@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 
 export interface Product {
   id: string;
+  sku?: string;
   nombre_producto: string;
   categoria: string;
   imagen_url: string;
