@@ -56,8 +56,8 @@ async function scrapeProductDetails(productUrl) {
     const response = await axios.get(productUrl);
     const $ = cheerio.load(response.data);
     
-    let descripcion = $('#tab-descricao').text().trim() || $('.descricao-produto').text().trim();
-    let caracteristicas = $('#tab-caracteristicas').text().trim() || $('.caracteristicas-produto').text().trim();
+    let descripcion = $('#product-tab-description').text().trim() || $('.product-description').text().trim();
+    let caracteristicas = $('#product-tab-additional').text().trim() || $('.product-specifications').text().trim();
     
     if (!descripcion) descripcion = "La descripción de este producto se actualizará próximamente.";
     if (!caracteristicas) caracteristicas = "Las características se actualizarán próximamente.";
