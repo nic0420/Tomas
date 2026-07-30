@@ -85,10 +85,10 @@ export function Store() {
           <div>
             <h4 className="text-white font-bold mb-4 uppercase">Boletín Informativo</h4>
             <p className="mb-4">Suscríbase para recibir nuestras ofertas.</p>
-            <div className="flex">
-              <input type="email" placeholder="Su E-mail" className="bg-[#222] border border-[#333] px-4 py-2 w-full text-white focus:outline-none focus:border-brand-green" />
-              <button className="bg-brand-green text-white px-4 font-bold hover:bg-brand-dark transition-colors">OK</button>
-            </div>
+              <form onSubmit={(e) => { e.preventDefault(); const d = new FormData(e.target as HTMLFormElement); alert('Gracias por suscribirte, ' + d.get('email') + '!'); (e.target as HTMLFormElement).reset(); }} className="flex">
+                <input type="email" name="email" placeholder="Su E-mail" required className="bg-[#222] border border-[#333] px-4 py-2 w-full text-white focus:outline-none focus:border-brand-green" />
+                <button type="submit" className="bg-brand-green text-white px-4 font-bold hover:bg-brand-dark transition-colors">OK</button>
+              </form>
           </div>
         </div>
         <div className="container mx-auto px-4 text-center border-t border-[#222] pt-8 flex items-center justify-between">

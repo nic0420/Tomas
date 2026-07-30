@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ShoppingCart, Heart, Eye } from 'lucide-react';
 import { type Product, useCartStore } from '../../store/useCartStore';
 import { useProductStore } from '../../store/useProductStore';
@@ -12,6 +13,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const { dolarBlue, setSelectedProduct } = useProductStore();
 
   const finalPriceArs = calculateARSPrice(product.precio_usd, dolarBlue);
+  const [imgError, setImgError] = useState(false);
 
   return (
     <div className="bg-white rounded-md overflow-hidden hover:shadow-2xl transition-all duration-300 group flex flex-col h-full relative border border-gray-100 hover:border-brand-gold/30">
@@ -36,11 +38,20 @@ export function ProductCard({ product }: ProductCardProps) {
         className="relative pt-[100%] bg-white overflow-hidden cursor-pointer"
         onClick={() => setSelectedProduct(product)}
       >
-        <img 
-          src={product.imagen_url} 
-          alt={product.nombre_producto}
-          className="absolute top-0 left-0 w-full h-full object-contain p-6 transform group-hover:scale-110 transition-transform duration-500"
-        />
+        {imgError ? (
+          <div className="absolute inset-0 flex items-center justify-center p-6">
+            <div className="w-full h-full bg-gray-100 rounded flex items-center justify-center">
+              <span className="text-gray-300 text-xs font-bold text-center px-2">{product.nombre_producto.substring(0, 30)}...</span>
+            </div>
+          </div>
+        ) : (
+          <img 
+            src={product.imagen_url} 
+            alt={product.nombre_producto}
+            onError={() => setImgError(true)}
+            className="absolute top-0 left-0 w-full h-full object-contain p-6 transform group-hover:scale-110 transition-transform duration-500"
+          />
+        )}
         
         {/* Quick Add to Cart button (Arsenal style overlay) */}
         <div className="absolute bottom-0 left-0 right-0 p-2 md:p-4 md:translate-y-full md:group-hover:translate-y-0 transition-transform duration-300 ease-out z-20">

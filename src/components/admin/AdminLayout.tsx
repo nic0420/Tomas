@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, Settings, LogOut, AlertTriangle, Lock } from 'lucide-react';
+import { LayoutDashboard, Package, Settings, LogOut, AlertTriangle, ShieldOff, Lock } from 'lucide-react';
 import { useAdminStore } from '../../store/useAdminStore';
+
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'tommyguns123';
+
+const handleAdminLogout = () => {
+  sessionStorage.removeItem('adminAuth');
+  window.location.reload();
+};
 
 export function AdminLayout() {
   const location = useLocation();
@@ -21,7 +28,7 @@ export function AdminLayout() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === 'tommyguns123') {
+    if (password === ADMIN_PASSWORD) {
       setIsAuthenticated(true);
       sessionStorage.setItem('adminAuth', 'true');
       setError('');
@@ -113,10 +120,16 @@ export function AdminLayout() {
         </nav>
 
         <div className="p-4 border-t border-[#222] bg-[#0a0c09]">
-          <Link to="/" className="flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-950/30 hover:text-red-400 rounded-lg transition-colors font-bold uppercase tracking-widest text-xs">
-            <LogOut size={16} />
-            Salir a Tienda
-          </Link>
+          <div className="space-y-1">
+            <Link to="/" className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white rounded-lg transition-colors font-bold uppercase tracking-widest text-xs">
+              <LogOut size={16} />
+              Salir a Tienda
+            </Link>
+            <button onClick={handleAdminLogout} className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-950/30 hover:text-red-400 rounded-lg transition-colors font-bold uppercase tracking-widest text-xs">
+              <ShieldOff size={16} />
+              Cerrar Sesión Admin
+            </button>
+          </div>
         </div>
       </aside>
 

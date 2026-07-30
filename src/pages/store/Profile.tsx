@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/useAuthStore';
-import { LogOut, User as UserIcon, Package, MapPin, Phone } from 'lucide-react';
+import { LogOut, User as UserIcon, Package, MapPin, Phone, AlertCircle } from 'lucide-react';
 import { db } from '../../config/firebase';
 import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
 
@@ -10,6 +10,7 @@ export const Profile: React.FC = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState<any[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
+  const [ordersError, setOrdersError] = useState('');
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -21,6 +22,7 @@ export const Profile: React.FC = () => {
     if (user?.id) {
       const fetchOrders = async () => {
         setLoadingOrders(true);
+        setOrdersError('');
         try {
           const q = query(
             collection(db, 'orders'),
@@ -33,8 +35,13 @@ export const Profile: React.FC = () => {
             ...doc.data()
           }));
           setOrders(fetchedOrders);
-        } catch (error) {
+        } catch (error: any) {
           console.error("Error fetching user orders: ", error);
+          if (error.code === 'failed-precondition') {
+            setOrdersError('El historial de pedidos no está disponible temporalmente. Contacta al administrador.');
+          } else {
+            setOrdersError('Error al cargar el historial de pedidos.');
+          }
         } finally {
           setLoadingOrders(false);
         }
@@ -102,9 +109,15 @@ export const Profile: React.FC = () => {
             <div className="px-6 py-8 text-center text-gray-500">
               Cargando pedidos...
             </div>
+          ) : ordersError ? (
+            <div className="px-6 py-8 text-center">
+              <AlertCircle className="w-10 h-10 text-yellow-500 mx-auto mb-3" />
+              <p className="text-gray-600 font-medium">{ordersError}</p>
+            </div>
           ) : orders.length === 0 ? (
-            <div className="px-6 py-8 text-center text-gray-500">
-              Aún no tienes pedidos registrados.
+            <div className="px-6 py-12 text-center text-gray-500">
+              <Package className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+              <p className="font-medium">No tienes pedidos aún</p>
             </div>
           ) : (
             orders.map((order) => (

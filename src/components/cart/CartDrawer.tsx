@@ -5,6 +5,8 @@ import { useProductStore } from '../../store/useProductStore';
 import { calculateARSPrice, formatCurrency } from '../../lib/utils';
 import { WHATSAPP_NUMBER } from '../../config/constants';
 import { useAuthStore } from '../../store/useAuthStore';
+import { db } from '../../config/firebase';
+import { collection, addDoc } from 'firebase/firestore';
 export function CartDrawer() {
   const { isCartOpen, toggleCart, items, updateQuantity, removeFromCart, clearCart } = useCartStore();
   const { dolarBlue } = useProductStore();
@@ -69,16 +71,9 @@ export function CartDrawer() {
     // Abrir ventana a Whatsapp inmediatamente para evitar bloqueos
     window.open(whatsappUrl, '_blank');
 
-    // Intentar guardar el pedido en background sin bloquear
-    (async () => {
-      try {
-        const { collection, addDoc } = await import('firebase/firestore');
-        const { db } = await import('../../config/firebase');
-        await addDoc(collection(db, 'orders'), orderData);
-      } catch (e) {
-        console.error("Error saving order: ", e);
-      }
-    })();
+    addDoc(collection(db, 'orders'), orderData).catch(e => {
+      console.error("Error saving order: ", e);
+    });
 
     // Clear and close cart after checkout
     clearCart();
@@ -130,6 +125,7 @@ export function CartDrawer() {
                       src={item.product.imagen_url} 
                       alt={item.product.nombre_producto} 
                       className="max-h-full object-contain mix-blend-multiply"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).insertAdjacentHTML('afterend', '<div class="text-gray-300 text-3xl">📷</div>'); }}
                     />
                   </div>
                   

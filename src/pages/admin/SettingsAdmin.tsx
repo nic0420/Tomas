@@ -11,10 +11,11 @@ export function SettingsAdmin() {
     customDolarBlue ? customDolarBlue.toString() : ''
   );
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const rate = parseFloat(localRate);
     if (!isNaN(rate) && rate > 0) {
       setCustomDolarBlue(rate);
+      await fetchDolarBlue();
       alert('Tasa de cambio manual guardada correctamente. Toda la tienda usará este valor ahora.');
     } else {
       alert('Por favor ingresa un número válido.');

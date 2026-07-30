@@ -78,7 +78,7 @@ export function CategoryNav() {
         </div>
 
         {/* Horizontal Mega Menu */}
-        <div className="flex-1 overflow-x-auto md:ml-4 hide-scrollbar">
+        <div className="flex-1 overflow-x-auto md:ml-4 no-scrollbar">
           <ul className="flex items-center justify-start md:justify-between min-w-max md:min-w-0 text-[11px] font-bold text-brand-dark uppercase tracking-wider relative h-12 md:h-auto">
             {megaMenu.map((menu) => (
               <li 

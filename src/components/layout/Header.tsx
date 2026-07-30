@@ -94,21 +94,15 @@ export function Header() {
           </button>
           
           <a href="/" className="flex items-center">
-            {/* The user will drop their logo in public/logo.jpg */}
-            <img src="/logo.jpg" alt="Tommy Guns" className="h-16 w-auto object-contain hidden md:block" onError={(e) => {
-              (e.target as HTMLElement).style.display = 'none';
-              const nextSibling = (e.target as HTMLElement).nextElementSibling;
-              if (nextSibling) (nextSibling as HTMLElement).classList.remove('hidden');
-            }}/>
-            <div className="hidden flex-col leading-none">
-              <span className="text-brand-green text-4xl font-black tracking-tighter uppercase" style={{ textShadow: '2px 2px 0px #c29b62' }}>TOMMY</span>
-              <span className="text-brand-gold text-2xl font-black tracking-widest uppercase">GUNS</span>
+            <div className="flex flex-col leading-none md:flex-row md:items-center md:gap-2">
+              <span className="text-brand-green text-2xl md:text-4xl font-black tracking-tighter uppercase" style={{ textShadow: '2px 2px 0px #c29b62' }}>TOMMY</span>
+              <span className="text-brand-gold text-xl md:text-2xl font-black tracking-widest uppercase">GUNS</span>
             </div>
           </a>
         </div>
 
         {/* Search Bar - Intelligent */}
-        <div className="hidden lg:flex flex-1 max-w-3xl relative" ref={searchRef}>
+        <div className="flex flex-1 max-w-3xl relative" ref={searchRef}>
           <div className={`flex w-full border-2 ${isSearchFocused ? 'border-brand-dark' : 'border-brand-green'} rounded-full overflow-hidden transition-colors bg-white z-50`}>
             <input
               type="text"

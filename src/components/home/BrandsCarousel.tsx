@@ -1,12 +1,14 @@
 import useEmblaCarousel from 'embla-carousel-react';
 
 const brands = [
-  { id: 1, name: 'Brand 1' },
-  { id: 2, name: 'Brand 2' },
-  { id: 3, name: 'Brand 3' },
-  { id: 4, name: 'Brand 4' },
-  { id: 5, name: 'Brand 5' },
-  { id: 6, name: 'Brand 6' },
+  { id: 1, name: 'AMOEBA', img: '' },
+  { id: 2, name: 'A&K', img: '' },
+  { id: 3, name: 'ACTION ARMY', img: '' },
+  { id: 4, name: 'G&G', img: '' },
+  { id: 5, name: 'KWA', img: '' },
+  { id: 6, name: 'TARAN TACTICAL', img: '' },
+  { id: 7, name: 'ARES', img: '' },
+  { id: 8, name: 'EMG', img: '' },
 ];
 
 export function BrandsCarousel() {
@@ -27,8 +29,8 @@ export function BrandsCarousel() {
         <div className="flex gap-4">
           {brands.map((brand) => (
             <div className="flex-[0_0_150px] min-w-0" key={brand.id}>
-              <div className="bg-white border border-gray-200 p-4 h-24 flex items-center justify-center rounded-sm grayscale hover:grayscale-0 transition-all cursor-pointer">
-                <span className="font-bold text-gray-400">{brand.name}</span>
+              <div className="bg-white border border-gray-200 p-4 h-24 flex items-center justify-center rounded-sm grayscale hover:grayscale-0 transition-all cursor-pointer hover:border-brand-gold/50 hover:shadow-md">
+                <span className="font-bold text-gray-500 hover:text-brand-dark transition-colors text-sm tracking-wider">{brand.name}</span>
               </div>
             </div>
           ))}
