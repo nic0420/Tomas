@@ -22,6 +22,17 @@ const CATEGORY_TRANSLATIONS: Record<string, string> = {
 
 const translateCategory = (cat: string) => CATEGORY_TRANSLATIONS[cat] || cat;
 
+interface ProductCSVRow {
+  id?: string;
+  sku?: string;
+  nombre_producto?: string;
+  categoria?: string;
+  imagen_url?: string;
+  precio_usd?: string;
+  descripcion?: string;
+  caracteristicas?: string;
+}
+
 interface ProductState {
   products: Product[];
   categories: string[];
@@ -67,8 +78,11 @@ export const useProductStore = create<ProductState>((set) => ({
       }
       
       const response = await fetch("https://dolarapi.com/v1/dolares/blue");
+      if (!response.ok) {
+        throw new Error(`Error HTTP ${response.status} al consultar el dólar blue`);
+      }
       const data = await response.json();
-      if (data && data.venta) {
+      if (data && typeof data.venta === 'number') {
         set({ dolarBlue: data.venta });
       }
     } catch (error) {
@@ -90,12 +104,10 @@ export const useProductStore = create<ProductState>((set) => ({
       };
       
       if (localProducts && localProducts.length > 0) {
-        const catSet = new Set<string>();
-        const translatedLocal = localProducts.map(p => {
-          const translatedCat = translateCategory(p.categoria);
-          catSet.add(translatedCat);
-          return { ...p, categoria: translatedCat };
-        });
+        const translatedLocal = localProducts.map(p => ({
+          ...p,
+          categoria: translateCategory(p.categoria),
+        }));
         
         const { visible, categories, allCategories } = filterHidden(translatedLocal);
         set({ 
@@ -107,13 +119,12 @@ export const useProductStore = create<ProductState>((set) => ({
         return;
       }
 
-      Papa.parse(GOOGLE_SHEETS_CSV_URL, {
+      Papa.parse<ProductCSVRow>(GOOGLE_SHEETS_CSV_URL, {
         download: true,
         header: true,
         complete: (results) => {
-          const rawData = results.data as any[];
+          const rawData = results.data;
           const validProducts: Product[] = [];
-          const catSet = new Set<string>();
 
           rawData.forEach(row => {
             if (row.id && row.nombre_producto) {
@@ -128,13 +139,12 @@ export const useProductStore = create<ProductState>((set) => ({
                 caracteristicas: row.caracteristicas || "Características no disponibles."
               };
               validProducts.push(product);
-              catSet.add(product.categoria);
             }
           });
 
           const visible = validProducts.filter(p => !hiddenSet.has(p.categoria));
-          const categories = Array.from(new Set(visible.map(p => p.categoria)));
-          const allCategories = Array.from(new Set(validProducts.map(p => p.categoria)));
+          const categories = Array.from(new Set(visible.map(p => p.categoria))).sort();
+          const allCategories = Array.from(new Set(validProducts.map(p => p.categoria))).sort();
 
           set({ 
             products: visible, 
@@ -148,8 +158,8 @@ export const useProductStore = create<ProductState>((set) => ({
           set({ error: error.message, isLoading: false });
         }
       });
-    } catch (err: any) {
-      set({ error: err.message, isLoading: false });
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : 'Error desconocido al cargar los productos.', isLoading: false });
     }
   }
 }));

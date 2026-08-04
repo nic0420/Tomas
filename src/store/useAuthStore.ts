@@ -15,9 +15,11 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  initAuthListener: () => void;
+  initAuthListener: () => (() => void);
   logout: () => Promise<void>;
 }
+
+let unsubscribeAuth: (() => void) | null = null;
 
 export const useAuthStore = create<AuthState>()((set) => ({
   user: null,
@@ -25,30 +27,52 @@ export const useAuthStore = create<AuthState>()((set) => ({
   isLoading: true,
   
   initAuthListener: () => {
-    onAuthStateChanged(auth, async (firebaseUser) => {
+    if (unsubscribeAuth) {
+      unsubscribeAuth();
+    }
+    unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        // Fetch additional user data from Firestore
-        const userDocRef = doc(db, 'users', firebaseUser.uid);
-        const userDocSnap = await getDoc(userDocRef);
-        
-        let userData: User;
-        
-        if (userDocSnap.exists()) {
-          userData = { id: firebaseUser.uid, ...userDocSnap.data() } as User;
-        } else {
-          // If for some reason the doc doesn't exist, we just use the auth info
-          userData = {
-            id: firebaseUser.uid,
-            name: firebaseUser.displayName || 'Usuario',
-            email: firebaseUser.email || '',
-          };
+        try {
+          const userDocRef = doc(db, 'users', firebaseUser.uid);
+          const userDocSnap = await getDoc(userDocRef);
+          
+          let userData: User;
+          
+          if (userDocSnap.exists()) {
+            const data = userDocSnap.data();
+            userData = {
+              id: firebaseUser.uid,
+              name: data.name || firebaseUser.displayName || 'Usuario',
+              email: data.email || firebaseUser.email || '',
+              phone: data.phone,
+              address: data.address,
+            };
+          } else {
+            userData = {
+              id: firebaseUser.uid,
+              name: firebaseUser.displayName || 'Usuario',
+              email: firebaseUser.email || '',
+            };
+          }
+          
+          set({ user: userData, isAuthenticated: true, isLoading: false });
+        } catch (error) {
+          console.error("Error fetching user data from Firestore:", error);
+          set({
+            user: {
+              id: firebaseUser.uid,
+              name: firebaseUser.displayName || 'Usuario',
+              email: firebaseUser.email || '',
+            },
+            isAuthenticated: true,
+            isLoading: false,
+          });
         }
-        
-        set({ user: userData, isAuthenticated: true, isLoading: false });
       } else {
         set({ user: null, isAuthenticated: false, isLoading: false });
       }
     });
+    return unsubscribeAuth;
   },
   
   logout: async () => {

@@ -34,19 +34,20 @@ export const useCartStore = create<CartState>()(
       isCartOpen: false,
 
       addToCart: (product, quantity = 1) => set((state) => {
+        const qty = Math.max(1, Math.min(99, Math.floor(quantity)));
         const existingItem = state.items.find(item => item.product.id === product.id);
         if (existingItem) {
           return {
             items: state.items.map(item =>
               item.product.id === product.id
-                ? { ...item, quantity: item.quantity + quantity }
+                ? { ...item, quantity: Math.min(99, item.quantity + qty) }
                 : item
             ),
             isCartOpen: true, // open cart when adding
           };
         }
         return { 
-          items: [...state.items, { product, quantity }],
+          items: [...state.items, { product, quantity: qty }],
           isCartOpen: true
         };
       }),
@@ -56,12 +57,13 @@ export const useCartStore = create<CartState>()(
       })),
 
       updateQuantity: (productId, quantity) => set((state) => {
-        if (quantity <= 0) {
+        const qty = Math.floor(quantity);
+        if (!Number.isFinite(qty) || qty <= 0) {
           return { items: state.items.filter(item => item.product.id !== productId) };
         }
         return {
           items: state.items.map(item =>
-            item.product.id === productId ? { ...item, quantity } : item
+            item.product.id === productId ? { ...item, quantity: Math.min(99, qty) } : item
           )
         };
       }),

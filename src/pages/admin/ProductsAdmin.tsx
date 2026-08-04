@@ -48,16 +48,26 @@ export function ProductsAdmin() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      Papa.parse(file, {
+      Papa.parse<{
+        id?: string;
+        sku?: string;
+        nombre_producto?: string;
+        categoria?: string;
+        imagen_url?: string;
+        precio_usd?: string;
+        descripcion?: string;
+        caracteristicas?: string;
+      }>(file, {
         header: true,
         complete: (results) => {
-          const rawData = results.data as any[];
+          const rawData = results.data;
           const newProducts: Product[] = [];
           
           rawData.forEach(row => {
             if (row.id && row.nombre_producto) {
               newProducts.push({
                 id: row.id,
+                sku: row.sku || "",
                 nombre_producto: row.nombre_producto,
                 categoria: row.categoria || "Otros",
                 imagen_url: row.imagen_url || "https://via.placeholder.com/150",
@@ -83,7 +93,6 @@ export function ProductsAdmin() {
 
   const handleResetCatalog = () => {
     if (confirm('¿Estás seguro? Esto borrará tus cambios locales y volverá a descargar el catálogo original desde Google Sheets.')) {
-      setLocalProducts([]); // clears it, though we should probably set to null. But empty array is fine if we handle it in store, wait, in store `localProducts.length > 0` checks it.
       useAdminStore.setState({ localProducts: null });
       fetchProducts();
     }

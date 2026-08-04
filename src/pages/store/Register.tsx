@@ -38,9 +38,9 @@ export const Register: React.FC = () => {
         });
 
         navigate('/');
-      } catch (err: any) {
+      } catch (err) {
         console.error(err);
-        setError(err.message || 'Error al registrar la cuenta.');
+        setError(err instanceof Error ? err.message : 'Error al registrar la cuenta.');
       } finally {
         setLoading(false);
       }

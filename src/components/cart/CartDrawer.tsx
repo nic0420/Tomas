@@ -125,7 +125,7 @@ export function CartDrawer() {
                       src={item.product.imagen_url} 
                       alt={item.product.nombre_producto} 
                       className="max-h-full object-contain mix-blend-multiply"
-                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).insertAdjacentHTML('afterend', '<div class="text-gray-300 text-3xl">📷</div>'); }}
+                      onError={(e) => { (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="50%" x="50%" dominant-baseline="middle" text-anchor="middle" font-size="40">📷</text></svg>'; }}
                     />
                   </div>
                   

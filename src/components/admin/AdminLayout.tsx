@@ -3,7 +3,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Package, Settings, LogOut, AlertTriangle, ShieldOff, Lock } from 'lucide-react';
 import { useAdminStore } from '../../store/useAdminStore';
 
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'tommyguns123';
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || '';
 
 const handleAdminLogout = () => {
   sessionStorage.removeItem('adminAuth');
@@ -28,6 +28,10 @@ export function AdminLayout() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!ADMIN_PASSWORD) {
+      setError('La contraseña de administrador no está configurada. Definí VITE_ADMIN_PASSWORD en el archivo .env y reconstruí la app.');
+      return;
+    }
     if (password === ADMIN_PASSWORD) {
       setIsAuthenticated(true);
       sessionStorage.setItem('adminAuth', 'true');

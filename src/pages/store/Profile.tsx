@@ -5,10 +5,18 @@ import { LogOut, User as UserIcon, Package, MapPin, Phone, AlertCircle } from 'l
 import { db } from '../../config/firebase';
 import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
 
+interface UserOrder {
+  id: string;
+  date: string;
+  totalArs?: number;
+  status?: string;
+  items?: unknown[];
+}
+
 export const Profile: React.FC = () => {
   const { user, logout, isAuthenticated, isLoading } = useAuthStore();
   const navigate = useNavigate();
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<UserOrder[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [ordersError, setOrdersError] = useState('');
 
@@ -33,11 +41,11 @@ export const Profile: React.FC = () => {
           const fetchedOrders = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
-          }));
+          })) as UserOrder[];
           setOrders(fetchedOrders);
-        } catch (error: any) {
+        } catch (error) {
           console.error("Error fetching user orders: ", error);
-          if (error.code === 'failed-precondition') {
+          if (error instanceof Error && error.message.includes('failed-precondition')) {
             setOrdersError('El historial de pedidos no está disponible temporalmente. Contacta al administrador.');
           } else {
             setOrdersError('Error al cargar el historial de pedidos.');
@@ -55,8 +63,8 @@ export const Profile: React.FC = () => {
     return <div className="p-12 text-center text-gray-500">Cargando perfil...</div>;
   }
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/');
   };
 
@@ -135,7 +143,13 @@ export const Profile: React.FC = () => {
                     <p className="text-sm font-bold text-gray-900">
                       ${order.totalArs?.toLocaleString('es-AR')}
                     </p>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mt-1">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1 ${
+                      order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                      order.status === 'Pagado' ? 'bg-blue-100 text-blue-800' :
+                      order.status === 'Enviado' ? 'bg-green-100 text-green-800' :
+                      order.status === 'Cancelado' ? 'bg-red-100 text-red-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
                       {order.status === 'pending' ? 'Pendiente / Coordinando' : order.status}
                     </span>
                   </div>

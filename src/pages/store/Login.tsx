@@ -19,7 +19,7 @@ export const Login: React.FC = () => {
       try {
         await signInWithEmailAndPassword(auth, email, password);
         navigate('/');
-      } catch (err: any) {
+      } catch (err) {
         console.error(err);
         setError('Correo o contraseña incorrectos.');
       } finally {

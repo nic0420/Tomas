@@ -5,6 +5,7 @@ export function calculateARSPrice(precio_usd: number, dolarBlue: number): number
 }
 
 export function formatCurrency(amount: number): string {
+  if (!Number.isFinite(amount)) return '$0';
   return new Intl.NumberFormat("es-AR", {
     style: "currency",
     currency: "ARS",

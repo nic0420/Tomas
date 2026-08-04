@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import { useProductStore } from '../../store/useProductStore';
 import type { Product } from '../../store/useCartStore';
@@ -8,10 +8,12 @@ export function HeroSlider() {
   const { products, setSelectedProduct, dolarBlue } = useProductStore();
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [randomProducts, setRandomProducts] = useState<Product[]>([]);
+  const pickedRef = useRef(false);
 
   // Pick 3 random products once when products load
   useEffect(() => {
-    if (products.length > 0 && randomProducts.length === 0) {
+    if (products.length > 0 && !pickedRef.current) {
+      pickedRef.current = true;
       const shuffled = [...products].sort(() => 0.5 - Math.random());
       setRandomProducts(shuffled.slice(0, 3));
     }

@@ -6,7 +6,7 @@ import { calculateARSPrice, formatCurrency } from '../../lib/utils';
 import { ProductCard } from './ProductCard';
 
 export function ProductDetail() {
-  const { selectedProduct, setSelectedProduct, dolarBlue } = useProductStore();
+  const { selectedProduct, setSelectedProduct, dolarBlue, products } = useProductStore();
   const { addToCart } = useCartStore();
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<'details' | 'specs'>('details');
@@ -19,7 +19,7 @@ export function ProductDetail() {
     addToCart(selectedProduct, quantity);
   };
 
-  const relatedProducts = useProductStore.getState().products
+  const relatedProducts = products
     .filter(p => p.categoria === selectedProduct.categoria && p.id !== selectedProduct.id)
     .slice(0, 5);
 
@@ -96,10 +96,9 @@ export function ProductDetail() {
                     className="flex-1 h-full text-center font-bold text-lg text-brand-dark bg-transparent outline-none"
                   />
                   <button 
-                    onClick={() => setQuantity(quantity + 1)}
+                    onClick={() => setQuantity(q => Math.min(99, q + 1))}
                     className="w-10 h-full flex items-center justify-center text-gray-500 hover:text-brand-green hover:bg-gray-50 transition-colors"
-                  >+</button>
-                </div>
+                  >+</button>                </div>
 
                 <button 
                   onClick={handleAddToCart}

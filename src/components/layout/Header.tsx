@@ -3,6 +3,7 @@ import { ShoppingCart, Menu, User, Phone, DollarSign, ChevronRight } from 'lucid
 import { useCartStore } from '../../store/useCartStore';
 import { useProductStore } from '../../store/useProductStore';
 import { useAuthStore } from '../../store/useAuthStore';
+import type { Product } from '../../store/useCartStore';
 import { Link } from 'react-router-dom';
 import { WHATSAPP_NUMBER } from '../../config/constants';
 import { searchProducts, searchCategories } from '../../utils/search';
@@ -45,9 +46,13 @@ export function Header() {
     setIsSearchFocused(false);
   };
 
-  const handleSelectProduct = (product: any) => {
+  const handleSelectProduct = (product: Product) => {
     setSelectedProduct(product);
     setSearchQuery('');
+    setIsSearchFocused(false);
+  };
+
+  const handleViewAllResults = () => {
     setIsSearchFocused(false);
   };
 
@@ -163,7 +168,7 @@ export function Header() {
               
               {searchSuggestions.products.length > 0 && (
                 <button 
-                  onClick={() => setIsSearchFocused(false)}
+                  onClick={handleViewAllResults}
                   className="w-full p-3 bg-brand-green/10 text-brand-green font-bold text-xs uppercase tracking-widest hover:bg-brand-green hover:text-white transition-colors text-center"
                 >
                   Ver todos los resultados para "{searchQuery}"
