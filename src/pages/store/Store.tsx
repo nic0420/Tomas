@@ -9,6 +9,7 @@ import { BannersGrid } from '../../components/home/BannersGrid';
 import { BrandsCarousel } from '../../components/home/BrandsCarousel';
 import { ProductGrid } from '../../components/product/ProductGrid';
 import { FloatingSocial } from '../../components/layout/FloatingSocial';
+import { BackToTop } from '../../components/layout/BackToTop';
 import { ProductDetail } from '../../components/product/ProductDetail';
 import { CartDrawer } from '../../components/cart/CartDrawer';
 
@@ -38,6 +39,7 @@ export function Store() {
         <FloatingSocial />
         <Header />
         <CategoryNav />
+        <BackToTop />
         
         <main className="flex-1 flex flex-col">
         {selectedProduct ? (

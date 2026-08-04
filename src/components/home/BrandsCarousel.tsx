@@ -1,4 +1,5 @@
 import useEmblaCarousel from 'embla-carousel-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const brands = [
   { id: 1, name: 'AMOEBA', img: '' },
@@ -12,10 +13,13 @@ const brands = [
 ];
 
 export function BrandsCarousel() {
-  const [emblaRef] = useEmblaCarousel({ 
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
     align: 'start',
     containScroll: 'trimSnaps'
   });
+
+  const scrollPrev = () => emblaApi && emblaApi.scrollPrev();
+  const scrollNext = () => emblaApi && emblaApi.scrollNext();
 
   return (
     <div className="mb-12">
@@ -23,6 +27,22 @@ export function BrandsCarousel() {
         <h2 className="text-2xl font-black text-brand-dark uppercase">
           Marcas Destacadas
         </h2>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={scrollPrev}
+            aria-label="Marcas anteriores"
+            className="w-9 h-9 flex items-center justify-center border border-gray-200 rounded hover:border-brand-green hover:text-brand-green transition-colors text-gray-500"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button
+            onClick={scrollNext}
+            aria-label="Marcas siguientes"
+            className="w-9 h-9 flex items-center justify-center border border-gray-200 rounded hover:border-brand-green hover:text-brand-green transition-colors text-gray-500"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
       </div>
       
       <div className="overflow-hidden" ref={emblaRef}>

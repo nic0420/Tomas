@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { ShoppingCart, Menu, User, Phone, DollarSign, ChevronRight } from 'lucide-react';
+import { ShoppingCart, Menu, User, Phone, DollarSign, ChevronRight, Search, X } from 'lucide-react';
 import { useCartStore } from '../../store/useCartStore';
 import { useProductStore } from '../../store/useProductStore';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -53,8 +53,102 @@ export function Header() {
   };
 
   const handleViewAllResults = () => {
+    setSearchQuery(searchQuery);
+    setSelectedCategory(null);
     setIsSearchFocused(false);
+    setTimeout(() => {
+      const el = document.getElementById('product-grid');
+      if (el) {
+        window.scrollTo({ top: el.offsetTop - 100, behavior: 'smooth' });
+      }
+    }, 100);
   };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleViewAllResults();
+  };
+
+  const handleClear = () => {
+    setSearchQuery('');
+    setIsSearchFocused(true);
+  };
+
+  const searchBar = (
+    <div className={`flex w-full border-2 ${isSearchFocused ? 'border-brand-dark' : 'border-brand-green'} rounded-full overflow-hidden transition-colors bg-white z-50`}>
+      <input
+        type="text"
+        placeholder="Escribe lo que buscas (ej: balines, bbs, repuestos...)"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        onFocus={() => setIsSearchFocused(true)}
+        className="w-full bg-transparent py-3 px-5 text-[13px] text-gray-700 focus:outline-none font-medium min-w-0"
+      />
+      {searchQuery && (
+        <button type="button" onClick={handleClear} className="flex items-center justify-center px-2 text-gray-400 hover:text-gray-600 transition-colors">
+          <X className="w-4 h-4" />
+        </button>
+      )}
+      <button type="submit" className="bg-brand-green text-white px-4 md:px-8 hover:bg-brand-dark transition-colors flex items-center justify-center font-bold text-sm uppercase tracking-wide gap-2">
+        <Search className="w-4 h-4 md:hidden" />
+        <span className="hidden md:inline">Buscar</span>
+      </button>
+    </div>
+  );
+
+  const searchSuggestionsPanel = isSearchFocused && searchQuery.length >= 2 && (
+    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-2xl border border-gray-100 z-50 overflow-hidden">
+      {searchSuggestions.categories.length > 0 && (
+        <div className="p-3 border-b border-gray-100 bg-gray-50">
+          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-2">Categorías Sugeridas</h4>
+          {searchSuggestions.categories.map(cat => (
+            <button
+              key={cat}
+              onClick={() => handleSelectCategory(cat)}
+              className="w-full text-left px-2 py-1.5 hover:bg-white hover:text-brand-green rounded text-sm font-semibold flex items-center justify-between group transition-colors"
+            >
+              {cat}
+              <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </button>
+          ))}
+        </div>
+      )}
+      
+      <div className="p-3">
+        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-2">Productos</h4>
+        {searchSuggestions.products.length > 0 ? (
+          <div className="space-y-1">
+            {searchSuggestions.products.map(product => (
+              <button
+                key={product.id}
+                onClick={() => handleSelectProduct(product)}
+                className="w-full flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors text-left"
+              >
+                <div className="w-10 h-10 bg-white border border-gray-200 rounded flex-shrink-0 p-1">
+                  <img src={product.imagen_url} alt={product.nombre_producto} className="w-full h-full object-contain" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-gray-700 truncate">{product.nombre_producto}</p>
+                  <p className="text-brand-green font-black text-xs">US$ {product.precio_usd.toFixed(2)}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-500 px-2 py-4 text-center">No hay productos que coincidan.</p>
+        )}
+      </div>
+      
+      {searchSuggestions.products.length > 0 && (
+        <button 
+          onClick={handleViewAllResults}
+          className="w-full p-3 bg-brand-green/10 text-brand-green font-bold text-xs uppercase tracking-widest hover:bg-brand-green hover:text-white transition-colors text-center"
+        >
+          Ver todos los resultados para "{searchQuery}"
+        </button>
+      )}
+    </div>
+  );
 
   return (
     <header className="w-full bg-white font-sans">
@@ -90,124 +184,73 @@ export function Header() {
       </div>
 
       {/* Main Header */}
-      <div className="container mx-auto px-4 py-5 flex items-center justify-between gap-8">
+      <div className="container mx-auto px-4 py-4 md:py-5">
         
-        {/* Mobile Menu & Logo */}
-        <div className="flex items-center gap-4">
-          <button className="lg:hidden text-gray-800 hover:text-brand-gold transition-colors">
-            <Menu className="w-7 h-7" />
-          </button>
+        {/* Row 1: Logo + Desktop Search + Icons */}
+        <div className="flex items-center justify-between gap-3 md:gap-8">
           
-          <a href="/" className="flex items-center">
-            <div className="flex flex-col leading-none md:flex-row md:items-center md:gap-2">
-              <span className="text-brand-green text-2xl md:text-4xl font-black tracking-tighter uppercase" style={{ textShadow: '2px 2px 0px #c29b62' }}>TOMMY</span>
-              <span className="text-brand-gold text-xl md:text-2xl font-black tracking-widest uppercase">GUNS</span>
-            </div>
-          </a>
-        </div>
+          {/* Mobile Menu & Logo */}
+          <div className="flex items-center gap-2 md:gap-4">
+            <button className="lg:hidden text-gray-800 hover:text-brand-gold transition-colors" aria-label="Abrir menú">
+              <Menu className="w-7 h-7" />
+            </button>
+            
+            <a href="/" className="flex items-center">
+              <div className="flex flex-col leading-none md:flex-row md:items-center md:gap-2">
+                <span className="text-brand-green text-2xl md:text-4xl font-black tracking-tighter uppercase" style={{ textShadow: '2px 2px 0px #c29b62' }}>TOMMY</span>
+                <span className="text-brand-gold text-xl md:text-2xl font-black tracking-widest uppercase">GUNS</span>
+              </div>
+            </a>
+          </div>
 
-        {/* Search Bar - Intelligent */}
-        <div className="flex flex-1 max-w-3xl relative" ref={searchRef}>
-          <div className={`flex w-full border-2 ${isSearchFocused ? 'border-brand-dark' : 'border-brand-green'} rounded-full overflow-hidden transition-colors bg-white z-50`}>
-            <input
-              type="text"
-              placeholder="Escribe lo que buscas (ej: pistola, airsoft)..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => setIsSearchFocused(true)}
-              className="w-full bg-transparent py-3 px-5 text-[13px] text-gray-700 focus:outline-none font-medium"
-            />
-            <button className="bg-brand-green text-white px-8 hover:bg-brand-dark transition-colors flex items-center justify-center font-bold text-sm uppercase tracking-wide">
-              Buscar
+          {/* Search Bar - Desktop only (in this row) */}
+          <div className="hidden md:flex flex-1 max-w-3xl relative" ref={searchRef}>
+            <form className="w-full" onSubmit={handleSubmit}>
+              {searchBar}
+            </form>
+            {searchSuggestionsPanel}
+          </div>
+
+          {/* Contact & Cart */}
+          <div className="flex items-center gap-3 md:gap-8">
+            
+            {/* Contact (Desktop only) */}
+            <div className="hidden xl:flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full border-2 border-brand-gold flex items-center justify-center text-brand-green">
+                <Phone className="w-5 h-5" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Atención al Cliente</span>
+                <span className="text-sm font-black text-brand-dark">+54 9 3757 54-5877</span>
+              </div>
+            </div>
+
+            {/* Cart Button */}
+            <button
+              onClick={toggleCart}
+              className="flex items-center gap-3 group"
+              aria-label="Abrir carrito"
+            >
+              <div className="relative w-11 h-11 flex items-center justify-center bg-gray-100 rounded-full group-hover:bg-brand-gold transition-colors">
+                <ShoppingCart className="w-5 h-5 text-brand-green group-hover:text-white transition-colors" />
+                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-brand-green text-[10px] font-bold text-white shadow-sm border border-white">
+                  {totalItems}
+                </span>
+              </div>
+              <div className="hidden md:flex flex-col items-start leading-none text-left">
+                <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Mi Carrito</span>
+                <span className="text-sm font-black text-brand-dark">{totalItems > 0 ? `${totalItems} ítems` : 'Vacío'}</span>
+              </div>
             </button>
           </div>
-
-          {/* Suggestions Dropdown */}
-          {isSearchFocused && searchQuery.length >= 2 && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-2xl border border-gray-100 z-50 overflow-hidden">
-              {searchSuggestions.categories.length > 0 && (
-                <div className="p-3 border-b border-gray-100 bg-gray-50">
-                  <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-2">Categorías Sugeridas</h4>
-                  {searchSuggestions.categories.map(cat => (
-                    <button
-                      key={cat}
-                      onClick={() => handleSelectCategory(cat)}
-                      className="w-full text-left px-2 py-1.5 hover:bg-white hover:text-brand-green rounded text-sm font-semibold flex items-center justify-between group transition-colors"
-                    >
-                      {cat}
-                      <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </button>
-                  ))}
-                </div>
-              )}
-              
-              <div className="p-3">
-                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-2">Productos</h4>
-                {searchSuggestions.products.length > 0 ? (
-                  <div className="space-y-1">
-                    {searchSuggestions.products.map(product => (
-                      <button
-                        key={product.id}
-                        onClick={() => handleSelectProduct(product)}
-                        className="w-full flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors text-left"
-                      >
-                        <div className="w-10 h-10 bg-white border border-gray-200 rounded flex-shrink-0 p-1">
-                          <img src={product.imagen_url} alt={product.nombre_producto} className="w-full h-full object-contain" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-bold text-gray-700 truncate">{product.nombre_producto}</p>
-                          <p className="text-brand-green font-black text-xs">US$ {product.precio_usd.toFixed(2)}</p>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-gray-500 px-2 py-4 text-center">No hay productos que coincidan.</p>
-                )}
-              </div>
-              
-              {searchSuggestions.products.length > 0 && (
-                <button 
-                  onClick={handleViewAllResults}
-                  className="w-full p-3 bg-brand-green/10 text-brand-green font-bold text-xs uppercase tracking-widest hover:bg-brand-green hover:text-white transition-colors text-center"
-                >
-                  Ver todos los resultados para "{searchQuery}"
-                </button>
-              )}
-            </div>
-          )}
         </div>
 
-        {/* Contact & Cart */}
-        <div className="flex items-center gap-8">
-          
-          {/* Contact (Desktop only) */}
-          <div className="hidden xl:flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full border-2 border-brand-gold flex items-center justify-center text-brand-green">
-              <Phone className="w-5 h-5" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Atención al Cliente</span>
-              <span className="text-sm font-black text-brand-dark">+54 9 3757 54-5877</span>
-            </div>
-          </div>
-
-          {/* Cart Button */}
-          <button
-            onClick={toggleCart}
-            className="flex items-center gap-3 group"
-          >
-            <div className="relative w-11 h-11 flex items-center justify-center bg-gray-100 rounded-full group-hover:bg-brand-gold transition-colors">
-              <ShoppingCart className="w-5 h-5 text-brand-green group-hover:text-white transition-colors" />
-              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-brand-green text-[10px] font-bold text-white shadow-sm border border-white">
-                {totalItems}
-              </span>
-            </div>
-            <div className="hidden md:flex flex-col items-start leading-none text-left">
-              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Mi Carrito</span>
-              <span className="text-sm font-black text-brand-dark">{totalItems > 0 ? `${totalItems} ítems` : 'Vacío'}</span>
-            </div>
-          </button>
+        {/* Row 2: Search Bar - Mobile only (full width) */}
+        <div className="md:hidden mt-3 relative" ref={searchRef}>
+          <form className="w-full" onSubmit={handleSubmit}>
+            {searchBar}
+          </form>
+          {searchSuggestionsPanel}
         </div>
 
       </div>

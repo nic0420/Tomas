@@ -26,3 +26,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+.vercel
+scripts/checkpoint_*.json
+scripts/*.html

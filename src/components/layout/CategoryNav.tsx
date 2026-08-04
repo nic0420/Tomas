@@ -160,7 +160,7 @@ export function CategoryNav() {
   };
 
   return (
-    <nav className="w-full bg-white relative z-30 border-b border-gray-200 shadow-sm">
+    <nav className="w-full bg-white sticky top-0 z-40 border-b border-gray-200 shadow-sm">
       <div className="container mx-auto px-4 flex">
         
         {/* Todas las Categorias Dropdown trigger */}
