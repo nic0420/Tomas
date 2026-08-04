@@ -1,33 +1,151 @@
 import { useState } from 'react';
 import { Menu, ChevronDown } from 'lucide-react';
 import { useProductStore } from '../../store/useProductStore';
+import { useAdminStore } from '../../store/useAdminStore';
 
 export function CategoryNav() {
   const { categories, selectedCategory, setSelectedCategory } = useProductStore();
+  const hiddenCategories = useAdminStore((state) => state.hiddenCategories);
   const [isMainDropdownOpen, setIsMainDropdownOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
   const megaMenu = [
-    { name: 'AIRSOFT', filterName: 'Airsoft', subcategories: ['RIFLES', 'PISTOLAS', 'SNIPERS', 'ACCESORIOS'] },
-    { name: 'AIRGUN', filterName: 'Airgun', subcategories: ['CARABINAS', 'PISTOLAS DE BALINES', 'ACCESORIOS AIRGUN'] },
+    {
+      name: 'AIRSOFT',
+      filterName: 'Airsoft',
+      subcategories: [
+        'RÉPLICAS DE AIRSOFT',
+        'CARGADORES PARA RÉPLICAS',
+        'BATERÍAS Y CARGADORES',
+        'BBS / GREEN GAS / CO2 / HPA',
+        'GRANADAS DE AIRSOFT',
+        'PIEZAS EXTERNAS',
+        'PIEZAS INTERNAS',
+        'PIEZAS PARA RIFLES A GAS',
+        'PIEZAS PARA PISTOLAS',
+        'PIEZAS PARA SNIPERS',
+        'SPEEDSOFT'
+      ]
+    },
+    {
+      name: 'AIRGUN',
+      filterName: 'Airgun',
+      subcategories: [
+        'PISTOLAS Y REVÓLVERES',
+        'CARABINAS DE AIRE',
+        'CARGADORES',
+        'PERDIGONES Y PROYECTILES',
+        'PIEZAS Y ACCESORIOS HPA / CO2'
+      ]
+    },
     { 
       name: 'PAINTBALL', 
       filterName: 'Paintball',
       subcategories: [
-        'PAINTBALL',
         'MARCADORES',
         'CO2 / HPA',
         'MÁSCARAS Y LENTES',
         'LOADERS Y CARGADORES',
         'CINTURONES PARA PODS Y CILINDROS',
         'PROYECTILES PAINTBALL',
-        'REPUESTOS',
-        'CUSTOMIZACIÓN & TUNE-UP'
+        'PIEZAS DE REPOSICIÓN',
+        'CUSTOMIZACIÓN Y TUNE-UP'
       ] 
     },
-    { name: 'ÓPTICA E ILUMINACIÓN', filterName: 'Óptica e Iluminación', subcategories: ['MIRAS TELESCÓPICAS', 'RED DOTS', 'LINTERNAS'] },
-    { name: 'BOTE, PESCA, ENERGÍA Y SUPERVIVENCIA', filterName: 'Outdoor & Survival', subcategories: [] }
+    {
+      name: 'ÓPTICA E ILUMINACIÓN',
+      filterName: 'Óptica e Iluminación',
+      subcategories: [
+        'MIRAS TELESCÓPICAS',
+        'BINOCULARES',
+        'TELÉMETROS (RANGEFINDERS)',
+        'MIRAS RED DOT Y VERDE DOT',
+        'MIRAS DE VISIÓN NOCTURNA',
+        'MIRAS TÉRMICAS',
+        'SPOTTING SCOPES',
+        'LUCES Y LÁSERES',
+        'ACOG',
+        'MIRAS DE FIBRA Y TRITIUM',
+        'ANILLOS DE MIRA',
+        'SOPORTES Y BASES DE MIRA',
+        'ACCESORIOS DE MIRA'
+      ]
+    },
+    {
+      name: 'FITNESS & RECUPERACIÓN',
+      filterName: 'Fitness & Recuperación',
+      subcategories: [
+        'ACONDICIONAMIENTO FÍSICO',
+        'EQUIPOS DE ENTRENAMIENTO / TECNOLOGÍA',
+        'FISIOTERAPIA Y RECUPERACIÓN MUSCULAR',
+        'ENTRENAMIENTO FUNCIONAL',
+        'MOVILIDAD, CORE Y EQUILIBRIO',
+        'YOGA Y PILATES'
+      ]
+    },
+    {
+      name: 'OUTDOOR & SURVIVAL',
+      filterName: 'Outdoor & Survival',
+      subcategories: [
+        'ENERGÍA PORTÁTIL',
+        'BARCOS Y CANOAS',
+        'SOPORTES PARA BARCOS Y KAYAKS',
+        'KAYAKS',
+        'MOTORES NÁUTICOS',
+        'STAND UP PADDLE (SUP)',
+        'MOCHILAS TÉRMICAS',
+        'BOLSAS TÉRMICAS',
+        'BOTELLAS TÉRMICAS',
+        'RED DE CAMUFLAJE MILITAR',
+        'SILLAS Y MESAS DE CAMPING',
+        'LINTERNAS DE ACAMPAMENTO',
+        'PRIMEROS AUXILIOS',
+        'CUCHILLOS',
+        'EQUIPOS DE SALVAMENTO',
+        'GAZEBOS PORTÁTILES',
+        'PULSERAS DE SUPERVIVENCIA',
+        'GPS Y RASTREADORES PARA ANIMALES'
+      ]
+    },
+    { name: 'RELOJES', filterName: 'Relojes', subcategories: [] },
+    {
+      name: 'DEPORTES Y OCIO',
+      filterName: 'Deportes y Ocio',
+      subcategories: [
+        'BEACH TENNIS',
+        'PICKLEBALL',
+        'PÁDEL',
+        'PELOTAS',
+        'ACCESORIOS',
+        'SUP (STAND UP PADDLE)'
+      ]
+    },
+    {
+      name: 'MARCADORES NO LETALES',
+      filterName: 'Marcadores No Letales',
+      subcategories: [
+        'MARCADORES',
+        'CARGADORES',
+        'ACCESORIOS',
+        'PIEZAS Y PARTES INTERNAS'
+      ]
+    },
+    {
+      name: 'PRODUCTOS COCA-COLA',
+      filterName: 'Productos Coca-Cola',
+      subcategories: [
+        'AURICULARES Y PARLANTES',
+        'VASOS Y BOTELLAS TÉRMICAS'
+      ]
+    },
+    {
+      name: 'OFERTAS Y PROMOCIONES',
+      filterName: 'Ofertas y Promociones',
+      subcategories: ['COMBOS PROMOCIONALES']
+    }
   ];
+
+  const visibleMenu = megaMenu.filter(menu => !hiddenCategories.includes(menu.filterName));
 
   const handleCategorySelect = (catName: string) => {
     setSelectedCategory(catName);
@@ -79,8 +197,8 @@ export function CategoryNav() {
 
         {/* Horizontal Mega Menu */}
         <div className="flex-1 overflow-x-auto md:ml-4 no-scrollbar">
-          <ul className="flex items-center justify-start md:justify-between min-w-max md:min-w-0 text-[11px] font-bold text-brand-dark uppercase tracking-wider relative h-12 md:h-auto">
-            {megaMenu.map((menu) => (
+          <ul className="flex items-center justify-start md:justify-between gap-x-1 min-w-max md:min-w-0 text-[11px] font-bold text-brand-dark uppercase tracking-wider relative h-12 md:h-auto">
+            {visibleMenu.map((menu) => (
               <li 
                 key={menu.name}
                 className="h-full flex items-center"
