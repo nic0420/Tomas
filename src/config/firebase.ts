@@ -12,6 +12,17 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
+const requiredKeys = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'] as const;
+const missingKeys = requiredKeys.filter(key => !firebaseConfig[key]);
+
+if (missingKeys.length > 0) {
+  console.error(
+    "Firebase configuration incompleta. Faltan las siguientes variables de entorno: " +
+    missingKeys.map(key => `VITE_FIREBASE_${key.toUpperCase()}`).join(', ') +
+    ". Verificá el archivo .env y el panel de variables de entorno de tu deploy."
+  );
+}
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
