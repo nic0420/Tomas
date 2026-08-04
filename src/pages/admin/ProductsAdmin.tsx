@@ -1,14 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAdminStore } from '../../store/useAdminStore';
 import { useProductStore } from '../../store/useProductStore';
-import { Search, Upload, Edit, ChevronLeft, ChevronRight, Save, X, RefreshCw, Plus, Trash2 } from 'lucide-react';
+import { Search, Upload, Edit, ChevronLeft, ChevronRight, Save, X, RefreshCw, Plus, Trash2, Eye, EyeOff } from 'lucide-react';
 import type { Product } from '../../store/useCartStore';
 import Papa from 'papaparse';
 import { searchProducts } from '../../utils/search';
 
 export function ProductsAdmin() {
-  const { localProducts, setLocalProducts, updateProduct, addProduct, deleteProduct } = useAdminStore();
-  const { products, fetchProducts } = useProductStore();
+  const { localProducts, setLocalProducts, updateProduct, addProduct, deleteProduct, hiddenCategories, toggleCategoryVisibility, showAllCategories } = useAdminStore();
+  const { products, fetchProducts, allCategories } = useProductStore();
   
   useEffect(() => {
     fetchProducts();
@@ -29,6 +29,11 @@ export function ProductsAdmin() {
   const ITEMS_PER_PAGE = 10;
 
   const filteredProducts = searchProducts(displayProducts, searchTerm);
+
+  const visibilityCategories = allCategories.length > 0
+    ? allCategories
+    : Array.from(new Set(displayProducts.map(p => p.categoria))).sort();
+
 
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
   const currentProducts = filteredProducts.slice(
@@ -228,6 +233,54 @@ export function ProductsAdmin() {
             }}
             className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 font-medium text-gray-700"
           />
+        </div>
+      </div>
+
+      {/* Category Visibility */}
+      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <div>
+            <h3 className="font-bold text-brand-dark uppercase tracking-wider text-sm flex items-center gap-2">
+              {hiddenCategories.length > 0 ? <EyeOff size={16} className="text-red-500" /> : <Eye size={16} className="text-brand-green" />}
+              Visibilidad de Categorías
+            </h3>
+            <p className="text-xs text-gray-500 font-medium">Las categorías ocultas no aparecerán en la tienda ni en el buscador.</p>
+          </div>
+          <button 
+            onClick={() => {
+              showAllCategories();
+              fetchProducts();
+            }}
+            className="text-xs font-bold text-brand-dark uppercase tracking-wider hover:text-brand-green transition-colors"
+          >
+            Mostrar todas
+          </button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {visibilityCategories.map(cat => {
+            const hidden = hiddenCategories.includes(cat);
+            const count = displayProducts.filter(p => p.categoria === cat).length;
+            return (
+              <button
+                key={cat}
+                onClick={() => {
+                  toggleCategoryVisibility(cat);
+                  fetchProducts();
+                }}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-xs font-bold transition-colors ${
+                  hidden 
+                    ? 'border-red-200 bg-red-50 text-red-500 opacity-60' 
+                    : 'border-brand-green/30 bg-brand-green/5 text-brand-dark hover:border-brand-green'
+                }`}
+              >
+                {hidden ? <EyeOff size={14} /> : <Eye size={14} />}
+                <span>{cat}</span>
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${hidden ? 'bg-red-100 text-red-500' : 'bg-brand-green/10 text-brand-green'}`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 

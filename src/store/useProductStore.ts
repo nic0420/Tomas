@@ -25,6 +25,7 @@ const translateCategory = (cat: string) => CATEGORY_TRANSLATIONS[cat] || cat;
 interface ProductState {
   products: Product[];
   categories: string[];
+  allCategories: string[];
   isLoading: boolean;
   error: string | null;
   dolarBlue: number;
@@ -43,6 +44,7 @@ interface ProductState {
 export const useProductStore = create<ProductState>((set) => ({
   products: [],
   categories: [],
+  allCategories: [],
   isLoading: false,
   error: null,
   dolarBlue: 1100, // Default fallback
@@ -77,7 +79,15 @@ export const useProductStore = create<ProductState>((set) => ({
   fetchProducts: async () => {
     set({ isLoading: true, error: null });
     try {
-      const { localProducts } = useAdminStore.getState();
+      const { localProducts, hiddenCategories } = useAdminStore.getState();
+      const hiddenSet = new Set(hiddenCategories);
+      
+      const filterHidden = (products: Product[]): { visible: Product[]; categories: string[]; allCategories: string[] } => {
+        const visible = products.filter(p => !hiddenSet.has(p.categoria));
+        const categories = Array.from(new Set(visible.map(p => p.categoria))).sort();
+        const allCategories = Array.from(new Set(products.map(p => p.categoria))).sort();
+        return { visible, categories, allCategories };
+      };
       
       if (localProducts && localProducts.length > 0) {
         const catSet = new Set<string>();
@@ -87,9 +97,11 @@ export const useProductStore = create<ProductState>((set) => ({
           return { ...p, categoria: translatedCat };
         });
         
+        const { visible, categories, allCategories } = filterHidden(translatedLocal);
         set({ 
-          products: translatedLocal, 
-          categories: Array.from(catSet).sort(),
+          products: visible, 
+          categories,
+          allCategories,
           isLoading: false 
         });
         return;
@@ -120,9 +132,14 @@ export const useProductStore = create<ProductState>((set) => ({
             }
           });
 
+          const visible = validProducts.filter(p => !hiddenSet.has(p.categoria));
+          const categories = Array.from(new Set(visible.map(p => p.categoria)));
+          const allCategories = Array.from(new Set(validProducts.map(p => p.categoria)));
+
           set({ 
-            products: validProducts, 
-            categories: Array.from(catSet),
+            products: visible, 
+            categories,
+            allCategories,
             isLoading: false 
           });
         },

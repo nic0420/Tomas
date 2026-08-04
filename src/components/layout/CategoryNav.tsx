@@ -8,11 +8,11 @@ export function CategoryNav() {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
   const megaMenu = [
-    { name: 'MARCAS', subcategories: [] },
-    { name: 'AIRSOFT', subcategories: ['RIFLES', 'PISTOLAS', 'SNIPERS', 'ACCESORIOS'] },
-    { name: 'AIRGUN', subcategories: ['CARABINAS', 'PISTOLAS DE BALINES', 'ACCESORIOS AIRGUN'] },
+    { name: 'AIRSOFT', filterName: 'Airsoft', subcategories: ['RIFLES', 'PISTOLAS', 'SNIPERS', 'ACCESORIOS'] },
+    { name: 'AIRGUN', filterName: 'Airgun', subcategories: ['CARABINAS', 'PISTOLAS DE BALINES', 'ACCESORIOS AIRGUN'] },
     { 
       name: 'PAINTBALL', 
+      filterName: 'Paintball',
       subcategories: [
         'PAINTBALL',
         'MARCADORES',
@@ -25,7 +25,7 @@ export function CategoryNav() {
         'CUSTOMIZACIÓN & TUNE-UP'
       ] 
     },
-    { name: 'ÓPTICA E ILUMINACIÓN', subcategories: ['MIRAS TELESCÓPICAS', 'RED DOTS', 'LINTERNAS'] },
+    { name: 'ÓPTICA E ILUMINACIÓN', filterName: 'Óptica e Iluminación', subcategories: ['MIRAS TELESCÓPICAS', 'RED DOTS', 'LINTERNAS'] },
     { name: 'BOTE, PESCA, ENERGÍA Y SUPERVIVENCIA', filterName: 'Outdoor & Survival', subcategories: [] }
   ];
 
@@ -109,7 +109,7 @@ export function CategoryNav() {
                       {menu.subcategories.map((sub, idx) => (
                         <button
                           key={idx}
-                          onClick={() => handleCategorySelect(sub)}
+                          onClick={() => handleCategorySelect(menu.filterName || menu.name)}
                           className="text-left text-gray-500 hover:text-brand-green font-medium text-[13px] md:text-xs tracking-wide transition-colors py-1 md:py-0"
                         >
                           {sub}

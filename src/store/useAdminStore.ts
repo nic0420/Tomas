@@ -27,6 +27,7 @@ interface AdminState {
   orders: Order[];
   customDolarBlue: number | null;
   localProducts: Product[] | null;
+  hiddenCategories: string[];
   isLoadingOrders: boolean;
   
   fetchOrders: () => Promise<void>;
@@ -36,6 +37,9 @@ interface AdminState {
   updateProduct: (productId: string, updates: Partial<Product>) => void;
   addProduct: (product: Product) => void;
   deleteProduct: (productId: string) => void;
+  toggleCategoryVisibility: (category: string) => void;
+  setCategoryVisibility: (category: string, hidden: boolean) => void;
+  showAllCategories: () => void;
 }
 
 export const useAdminStore = create<AdminState>()(
@@ -44,6 +48,7 @@ export const useAdminStore = create<AdminState>()(
       orders: [],
       customDolarBlue: null,
       localProducts: null,
+      hiddenCategories: [],
       isLoadingOrders: false,
 
       fetchOrders: async () => {
@@ -99,7 +104,26 @@ export const useAdminStore = create<AdminState>()(
         return {
           localProducts: state.localProducts.filter(p => p.id !== productId)
         };
-      })
+      }),
+
+      toggleCategoryVisibility: (category) => set((state) => ({
+        hiddenCategories: state.hiddenCategories.includes(category)
+          ? state.hiddenCategories.filter(c => c !== category)
+          : [...state.hiddenCategories, category]
+      })),
+
+      setCategoryVisibility: (category, hidden) => set((state) => {
+        const isHidden = state.hiddenCategories.includes(category);
+        if (hidden && !isHidden) {
+          return { hiddenCategories: [...state.hiddenCategories, category] };
+        }
+        if (!hidden && isHidden) {
+          return { hiddenCategories: state.hiddenCategories.filter(c => c !== category) };
+        }
+        return state;
+      }),
+
+      showAllCategories: () => set({ hiddenCategories: [] }),
     }),
     {
       name: 'tomas-admin-storage',
