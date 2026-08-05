@@ -3,7 +3,7 @@ import { WHATSAPP_NUMBER } from '../../config/constants';
 
 export function FloatingSocial() {
   return (
-    <div className="fixed right-0 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2 p-2 bg-white/80 backdrop-blur-sm shadow-[-2px_0_10px_rgba(0,0,0,0.1)] rounded-l-lg border border-r-0 border-gray-200">
+    <div className="fixed right-0 bottom-24 z-50 flex flex-col gap-2 p-2 bg-white/80 backdrop-blur-sm shadow-[-2px_0_10px_rgba(0,0,0,0.1)] rounded-l-lg border border-r-0 border-gray-200">
       <a 
         href="https://www.instagram.com/tommygunsctes" 
         target="_blank" 

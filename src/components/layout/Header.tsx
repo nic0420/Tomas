@@ -17,14 +17,20 @@ export function Header() {
 
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const searchRef = useRef<HTMLDivElement>(null);
+  const desktopSearchRef = useRef<HTMLDivElement>(null);
+  const mobileSearchRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setIsSearchFocused(false);
+      const target = event.target as Node;
+      if (
+        desktopSearchRef.current?.contains(target) ||
+        mobileSearchRef.current?.contains(target)
+      ) {
+        return;
       }
+      setIsSearchFocused(false);
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -55,8 +61,8 @@ export function Header() {
   };
 
   const handleViewAllResults = () => {
-    setSearchQuery(searchQuery);
     setSelectedCategory(null);
+    setSearchQuery(searchQuery);
     setIsSearchFocused(false);
     setTimeout(() => {
       const el = document.getElementById('product-grid');
@@ -216,7 +222,7 @@ export function Header() {
           </div>
 
           {/* Search Bar - Desktop only (in this row) */}
-          <div className="hidden md:flex flex-1 max-w-3xl relative" ref={searchRef}>
+          <div className="hidden md:flex flex-1 max-w-3xl relative" ref={desktopSearchRef}>
             <form className="w-full" onSubmit={handleSubmit}>
               {searchBar}
             </form>
@@ -258,7 +264,7 @@ export function Header() {
         </div>
 
         {/* Row 2: Search Bar - Mobile only (full width) */}
-        <div className="md:hidden mt-3 relative" ref={searchRef}>
+        <div className="md:hidden mt-3 relative" ref={mobileSearchRef}>
           <form className="w-full" onSubmit={handleSubmit}>
             {searchBar}
           </form>
