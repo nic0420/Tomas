@@ -30,3 +30,4 @@ dist-ssr
 .vercel
 scripts/checkpoint_*.json
 scripts/*.html
+scripts/*.png

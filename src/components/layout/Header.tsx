@@ -7,6 +7,7 @@ import type { Product } from '../../store/useCartStore';
 import { Link } from 'react-router-dom';
 import { WHATSAPP_NUMBER } from '../../config/constants';
 import { searchProducts, searchCategories } from '../../utils/search';
+import { MobileMenu } from './MobileMenu';
 
 export function Header() {
   const { toggleCart, items } = useCartStore();
@@ -15,6 +16,7 @@ export function Header() {
   const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
 
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -191,11 +193,21 @@ export function Header() {
           
           {/* Mobile Menu & Logo */}
           <div className="flex items-center gap-2 md:gap-4">
-            <button className="lg:hidden text-gray-800 hover:text-brand-gold transition-colors" aria-label="Abrir menú">
+            <button className="lg:hidden text-gray-800 hover:text-brand-gold transition-colors" aria-label="Abrir menú" onClick={() => setIsMobileMenuOpen(true)}>
               <Menu className="w-7 h-7" />
             </button>
             
-            <a href="/" className="flex items-center">
+            <a
+              href="/"
+              onClick={(e) => {
+                if (window.innerWidth < 1024) {
+                  e.preventDefault();
+                  setIsMobileMenuOpen(true);
+                }
+              }}
+              className="flex items-center"
+              aria-label="Abrir menú de categorías"
+            >
               <div className="flex flex-col leading-none md:flex-row md:items-center md:gap-2">
                 <span className="text-brand-green text-2xl md:text-4xl font-black tracking-tighter uppercase" style={{ textShadow: '2px 2px 0px #c29b62' }}>TOMMY</span>
                 <span className="text-brand-gold text-xl md:text-2xl font-black tracking-widest uppercase">GUNS</span>
@@ -254,6 +266,8 @@ export function Header() {
         </div>
 
       </div>
+
+      <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
     </header>
   );
 }
