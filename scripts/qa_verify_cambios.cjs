@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer-core');
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const chrome = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
-const BASE = 'http://localhost:4173';
+const BASE = process.env.BASE_URL || 'https://tomas-hazel.vercel.app';
 
 (async () => {
   const b = await puppeteer.launch({ executablePath: chrome, headless: true, args: ['--no-sandbox'] });
