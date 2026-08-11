@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ShoppingCart, ShieldCheck, Truck, ChevronLeft, CreditCard } from 'lucide-react';
+import { ShoppingCart, ShieldCheck, Truck, ChevronLeft, CalendarClock } from 'lucide-react';
 import { useCartStore } from '../../store/useCartStore';
 import { useProductStore } from '../../store/useProductStore';
 import { calculateARSPrice, formatCurrency } from '../../lib/utils';
@@ -77,8 +77,8 @@ export function ProductDetail() {
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-600 font-medium bg-white px-3 py-2 rounded border border-gray-200 inline-flex">
-                  <CreditCard size={16} className="text-brand-gold" />
-                  <span>o <strong className="text-brand-dark">12x</strong> de <strong>{formatCurrency(finalPriceArs / 12)}</strong> sin interés</span>
+                  <CalendarClock size={16} className="text-brand-gold" />
+                  <span><strong className="text-brand-dark">Disponible 3 días después de su compra</strong></span>
                 </div>
               </div>
 

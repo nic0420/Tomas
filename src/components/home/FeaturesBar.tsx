@@ -1,4 +1,4 @@
-import { Truck, ShieldCheck, CreditCard, Clock } from 'lucide-react';
+import { Truck, ShieldCheck, Clock, CalendarClock } from 'lucide-react';
 
 export function FeaturesBar() {
   const features = [
@@ -8,9 +8,9 @@ export function FeaturesBar() {
       subtitle: "A todo el país"
     },
     {
-      icon: <CreditCard className="w-8 h-8 text-brand-gold" />,
-      title: "PAGO EN CUOTAS",
-      subtitle: "Hasta 12x sin interés"
+      icon: <CalendarClock className="w-8 h-8 text-brand-gold" />,
+      title: "DISPONIBILIDAD",
+      subtitle: "3 días después de su compra"
     },
     {
       icon: <ShieldCheck className="w-8 h-8 text-brand-gold" />,

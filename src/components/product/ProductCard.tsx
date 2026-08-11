@@ -85,8 +85,8 @@ export function ProductCard({ product }: ProductCardProps) {
             <span className="text-brand-green font-black text-xl leading-none">
               {formatCurrency(finalPriceArs)}
             </span>
-            <span className="text-[11px] text-gray-500 font-medium mt-1">
-              o <span className="text-brand-gold font-bold">12x</span> de <span className="font-bold text-gray-700">{formatCurrency(finalPriceArs / 12)}</span>
+            <span className="text-[10px] text-gray-500 font-medium mt-1">
+              Disponible 3 días después de su compra
             </span>
           </div>
         </div>

@@ -22,10 +22,10 @@ export function Store() {
   }, [fetchProducts, fetchDolarBlue]);
 
   return (
-    <div className="min-h-screen flex flex-col font-sans bg-[#f4f5f3] relative">
+    <div className="min-h-screen flex flex-col font-sans bg-[#e7eae6] relative">
       {/* Background Logo Watermark */}
       <div 
-        className="fixed inset-0 z-0 opacity-[0.04] pointer-events-none mix-blend-multiply"
+        className="fixed inset-0 z-0 opacity-[0.07] pointer-events-none mix-blend-multiply"
         style={{
           backgroundImage: 'url(/bg_logo.jpg)',
           backgroundSize: '50%',
