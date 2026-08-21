@@ -42,7 +42,7 @@ export function ProductsAdmin() {
 
   // Arsenal Scraper State
   const [arsenalPhase, setArsenalPhase] = useState<ArsenalPhase>('idle');
-  const [arsenalResult, setArsenalResult] = useState<{ primeraVez: boolean; totalArsenal: number; totalNuevos: number; nuevos: ArsenalNuevo[] } | null>(null);
+  const [arsenalResult, setArsenalResult] = useState<{ primeraVez: boolean; totalArsenal: number; totalNuevos?: number; nuevos?: ArsenalNuevo[]; idsBase?: number[] } | null>(null);
   const [arsenalPreview, setArsenalPreview] = useState<ArsenalProduct[]>([]);
   const [arsenalProgress, setArsenalProgress] = useState({ done: 0, total: 0 });
   const [arsenalSummary, setArsenalSummary] = useState('');
@@ -229,7 +229,7 @@ export function ProductsAdmin() {
 
       if (data.primeraVez) {
         // Primera ejecución: registra el catálogo actual como base sin importar nada
-        setArsenalSeenIds((data.nuevos as ArsenalNuevo[]).map(n => n.id));
+        setArsenalSeenIds(data.idsBase || []);
         setArsenalSummary(`Catálogo base registrado: ${data.totalArsenal} productos publicados en Arsenal Sports. Desde ahora, cada revisión detectará automáticamente solo los productos nuevos que suban.`);
         setArsenalPhase('done');
         return;
@@ -242,8 +242,7 @@ export function ProductsAdmin() {
       }
 
       // Preview con los primeros productos nuevos
-      const previewUrls = (data.nuevos as ArsenalNuevo[]).slice(0, ARSENAL_BATCH).map(n => n.url);
-      const sres = await fetch('/api/arsenal-scrape', {
+      const previewUrls = (data.nuevos as ArsenalNuevo[]).slice(0, ARSENAL_BATCH).map(n => n.url);      const sres = await fetch('/api/arsenal-scrape', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ urls: previewUrls }),
@@ -265,6 +264,7 @@ export function ProductsAdmin() {
     setArsenalPhase('importing');
 
     const collected: ArsenalProduct[] = [];
+    const failedUrls = new Set<string>();
     let omitidos = 0;
     let errores = 0;
 
@@ -281,11 +281,14 @@ export function ProductsAdmin() {
           collected.push(...(data.products || []));
           omitidos += data.omitidos || 0;
           errores += (data.errors || []).length;
+          (data.errors || []).forEach((e: { url: string }) => failedUrls.add(e.url));
         } else {
           errores += batch.length;
+          batch.forEach(b => failedUrls.add(b.url));
         }
       } catch {
         errores += batch.length;
+        batch.forEach(b => failedUrls.add(b.url));
       }
       setArsenalProgress({ done: Math.min(i + ARSENAL_BATCH, allNuevos.length), total: allNuevos.length });
     }
@@ -315,16 +318,17 @@ export function ProductsAdmin() {
     if (toAdd.length > 0) {
       useAdminStore.getState().setLocalProducts([...base, ...toAdd]);
     }
+    // Los que fallaron por error transitorio NO se marcan: se reintentan la próxima vez
     useAdminStore.getState().setArsenalSeenIds([
       ...useAdminStore.getState().arsenalSeenIds,
-      ...allNuevos.map(n => n.id),
+      ...allNuevos.filter(n => !failedUrls.has(n.url)).map(n => n.id),
     ]);
     fetchProducts();
 
     setArsenalSummary(
-      `Importados ${toAdd.length} productos nuevos al catálogo.` +
-      (omitidos ? ` Omitidos por categoría sin equivalente: ${omitidos}.` : '') +
-      (errores ? ` Con errores de lectura: ${errores}.` : '')
+      `Importado${toAdd.length !== 1 ? 's' : ''} ${toAdd.length} producto${toAdd.length !== 1 ? 's' : ''} nuevo${toAdd.length !== 1 ? 's' : ''} al catálogo.` +
+      (omitidos ? ` Omitidos (sin precio publicado o categoría sin equivalente): ${omitidos}.` : '') +
+      (errores ? ` ${errores} con errores de lectura se reintentarán en la próxima revisión.` : '')
     );
     setArsenalPhase('done');
   };
@@ -578,6 +582,11 @@ export function ProductsAdmin() {
                     </p>
                   </div>
                   <div className="max-h-64 overflow-y-auto divide-y divide-gray-100 border border-gray-100 rounded-lg">
+                    {arsenalPreview.length === 0 && (
+                      <p className="p-4 text-sm text-gray-500 font-medium">
+                        Los primeros productos no se pueden importar (sin precio publicado o categoría sin equivalente). Se saltearán automáticamente.
+                      </p>
+                    )}
                     {arsenalPreview.map(p => (
                       <div key={p.arsenalId} className="flex items-center gap-3 p-3">
                         <img src={p.imagen} alt="" className="w-12 h-12 object-contain bg-white border border-gray-100 rounded" />

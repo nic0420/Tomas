@@ -14,9 +14,20 @@ export default async function handler(req, res) {
     const knownIds = Array.isArray(req.body?.knownIds) ? req.body.knownIds : [];
     const known = new Set(knownIds);
     const catalog = await fetchArsenalCatalog();
+
+    // Primera ejecución: se devuelve el listado completo de IDs para registrar
+    // el catálogo actual como base (sin importar nada).
+    if (known.size === 0) {
+      return res.status(200).json({
+        primeraVez: true,
+        totalArsenal: catalog.length,
+        idsBase: catalog.map((e) => e.id),
+      });
+    }
+
     const nuevos = catalog.filter((e) => !known.has(e.id));
     return res.status(200).json({
-      primeraVez: known.size === 0,
+      primeraVez: false,
       totalArsenal: catalog.length,
       totalNuevos: nuevos.length,
       nuevos: nuevos.slice(0, 300),

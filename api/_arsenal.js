@@ -72,6 +72,10 @@ export async function scrapeArsenalProduct(url) {
   const precioRaw = String(data.offers?.price ?? '0').replace('.', '').replace(',', '.');
   // "99,00" -> 99.00 ; si viniera "1.299,00" el primer replace quita el miles -> 1299.00
   const precioUsd = parseFloat(precioRaw) || 0;
+  // Los productos sin stock se publican con precio "0,00": no sirven para vender.
+  if (!(precioUsd > 0)) {
+    return { omitido: true, motivo: 'sin precio publicado', url };
+  }
 
   // 2. Departamento desde el breadcrumb. Puede tener varios niveles
   //    (p. ej. 124 réplicas > 147 rifles > 144 AEG): se toma el ID más profundo
