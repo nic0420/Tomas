@@ -2,7 +2,7 @@ import { create } from "zustand";
 import Papa from "papaparse";
 import { GOOGLE_SHEETS_CSV_URL } from "../config/constants";
 import type { Product } from "./useCartStore";
-import { useAdminStore } from "./useAdminStore";
+import { useAdminStore, whenAdminHydrated } from "./useAdminStore";
 import { classifySubcategory } from "../utils/subcategories";
 
 const CATEGORY_TRANSLATIONS: Record<string, string> = {
@@ -75,6 +75,7 @@ export const useProductStore = create<ProductState>((set) => ({
 
   fetchDolarBlue: async () => {
     try {
+      await whenAdminHydrated;
       const { customDolarBlue } = useAdminStore.getState();
       if (customDolarBlue) {
         set({ dolarBlue: customDolarBlue });
@@ -97,6 +98,8 @@ export const useProductStore = create<ProductState>((set) => ({
   fetchProducts: async () => {
     set({ isLoading: true, error: null });
     try {
+      // El estado del admin se hidrata async (IndexedDB): esperar antes de leerlo
+      await whenAdminHydrated;
       const { localProducts, hiddenCategories } = useAdminStore.getState();
       const hiddenSet = new Set(hiddenCategories);
       

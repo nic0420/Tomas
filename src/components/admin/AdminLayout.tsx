@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, Settings, LogOut, AlertTriangle, ShieldOff, Lock } from 'lucide-react';
-import { useAdminStore } from '../../store/useAdminStore';
+import { LayoutDashboard, Package, Settings, LogOut, AlertTriangle, ShieldOff, Lock, Loader2 } from 'lucide-react';
+import { useAdminStore, useAdminHydrated } from '../../store/useAdminStore';
 
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || '';
 
@@ -13,6 +13,7 @@ const handleAdminLogout = () => {
 export function AdminLayout() {
   const location = useLocation();
   const { customDolarBlue } = useAdminStore();
+  const hydrated = useAdminHydrated();
   
   const [isAuthenticated, setIsAuthenticated] = useState(() => 
     sessionStorage.getItem('adminAuth') === 'true'
@@ -41,6 +42,17 @@ export function AdminLayout() {
       setPassword('');
     }
   };
+
+  if (!hydrated) {
+    return (
+      <div className="min-h-screen bg-brand-dark flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 size={40} className="mx-auto text-brand-gold animate-spin mb-4" />
+          <p className="text-gray-400 font-bold uppercase tracking-widest text-sm">Cargando panel...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return (

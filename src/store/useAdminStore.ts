@@ -1,8 +1,23 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { useEffect, useState } from 'react';
 import type { Product } from './useCartStore';
 import { db } from '../config/firebase';
 import { collection, query, orderBy, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { idbStorage } from '../utils/idbStorage';
+
+// Se resuelve cuando el estado persistido terminó de hidratarse (IndexedDB es async).
+// Los lectores no reactivos (p. ej. fetchProducts) deben esperar esta promesa.
+let notifyHydrated: () => void = () => {};
+export const whenAdminHydrated = new Promise<void>((resolve) => {
+  notifyHydrated = resolve;
+});
+
+export function useAdminHydrated(): boolean {
+  const [hydrated, setHydrated] = useState(() => useAdminStore.persist.hasHydrated());
+  useEffect(() => useAdminStore.persist.onFinishHydration(() => setHydrated(true)), []);
+  return hydrated;
+}
 
 export interface Order {
   id: string;
@@ -132,6 +147,8 @@ export const useAdminStore = create<AdminState>()(
     }),
     {
       name: 'tomas-admin-storage',
+      storage: createJSONStorage(() => idbStorage),
+      onRehydrateStorage: () => () => notifyHydrated(),
       // We don't want to persist orders if they are fetched from firestore, but it's okay, they get overwritten by fetch
     }
   )

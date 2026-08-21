@@ -260,80 +260,83 @@ export function ProductsAdmin() {
   const handleArsenalImport = async () => {
     if (!arsenalResult) return;
     const allNuevos = arsenalResult.nuevos;
-    setArsenalStatusProgress(allNuevos.length);
+    setArsenalProgress({ done: 0, total: allNuevos.length });
     setArsenalPhase('importing');
 
-    const collected: ArsenalProduct[] = [];
-    const failedUrls = new Set<string>();
-    let omitidos = 0;
-    let errores = 0;
+    try {
+      const collected: ArsenalProduct[] = [];
+      const failedUrls = new Set<string>();
+      let omitidos = 0;
+      let errores = 0;
 
-    for (let i = 0; i < allNuevos.length; i += ARSENAL_BATCH) {
-      const batch = allNuevos.slice(i, i + ARSENAL_BATCH);
-      try {
-        const res = await fetch('/api/arsenal-scrape', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ urls: batch.map(b => b.url) }),
-        });
-        const data = await res.json();
-        if (res.ok) {
-          collected.push(...(data.products || []));
-          omitidos += data.omitidos || 0;
-          errores += (data.errors || []).length;
-          (data.errors || []).forEach((e: { url: string }) => failedUrls.add(e.url));
-        } else {
+      for (let i = 0; i < allNuevos.length; i += ARSENAL_BATCH) {
+        const batch = allNuevos.slice(i, i + ARSENAL_BATCH);
+        try {
+          const res = await fetch('/api/arsenal-scrape', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ urls: batch.map(b => b.url) }),
+          });
+          const data = await res.json();
+          if (res.ok) {
+            collected.push(...(data.products || []));
+            omitidos += data.omitidos || 0;
+            errores += (data.errors || []).length;
+            (data.errors || []).forEach((e: { url: string }) => failedUrls.add(e.url));
+          } else {
+            errores += batch.length;
+            batch.forEach(b => failedUrls.add(b.url));
+          }
+        } catch {
           errores += batch.length;
           batch.forEach(b => failedUrls.add(b.url));
         }
-      } catch {
-        errores += batch.length;
-        batch.forEach(b => failedUrls.add(b.url));
+        setArsenalProgress({ done: Math.min(i + ARSENAL_BATCH, allNuevos.length), total: allNuevos.length });
       }
-      setArsenalProgress({ done: Math.min(i + ARSENAL_BATCH, allNuevos.length), total: allNuevos.length });
+
+      // Activar modo local si hace falta (snapshot del catálogo actual)
+      let base = useAdminStore.getState().localProducts;
+      if (!base) {
+        base = useProductStore.getState().products;
+        useAdminStore.getState().setLocalProducts(base);
+      }
+
+      const existingIds = new Set(base.map(p => p.id));
+      const toAdd: Product[] = collected
+        .filter(p => p.nombre && p.precioUsd > 0)
+        .map(p => ({
+          id: `ARS-${p.arsenalId}`,
+          sku: String(p.arsenalId),
+          nombre_producto: p.nombre,
+          categoria: p.categoria || 'Otros',
+          imagen_url: p.imagen || 'https://via.placeholder.com/300?text=Sin+Imagen',
+          precio_usd: p.precioUsd,
+          descripcion: p.descripcion || 'Producto importado del catálogo de Arsenal Sports.',
+          caracteristicas: p.url,
+        }))
+        .filter(p => !existingIds.has(p.id));
+
+      if (toAdd.length > 0) {
+        useAdminStore.getState().setLocalProducts([...base, ...toAdd]);
+      }
+      // Los que fallaron por error transitorio NO se marcan: se reintentan la próxima vez
+      useAdminStore.getState().setArsenalSeenIds([
+        ...useAdminStore.getState().arsenalSeenIds,
+        ...allNuevos.filter(n => !failedUrls.has(n.url)).map(n => n.id),
+      ]);
+      fetchProducts();
+
+      setArsenalSummary(
+        `Importado${toAdd.length !== 1 ? 's' : ''} ${toAdd.length} producto${toAdd.length !== 1 ? 's' : ''} nuevo${toAdd.length !== 1 ? 's' : ''} al catálogo.` +
+        (omitidos ? ` Omitidos (sin precio publicado o categoría sin equivalente): ${omitidos}.` : '') +
+        (errores ? ` ${errores} con errores de lectura se reintentarán en la próxima revisión.` : '')
+      );
+      setArsenalPhase('done');
+    } catch (err) {
+      setArsenalError(err instanceof Error ? err.message : 'Error desconocido durante la importación.');
+      setArsenalPhase('idle');
     }
-
-    // Activar modo local si hace falta (snapshot del catálogo actual)
-    let base = useAdminStore.getState().localProducts;
-    if (!base) {
-      base = useProductStore.getState().products;
-      useAdminStore.getState().setLocalProducts(base);
-    }
-
-    const existingIds = new Set(base.map(p => p.id));
-    const toAdd: Product[] = collected
-      .filter(p => p.nombre && p.precioUsd > 0)
-      .map(p => ({
-        id: `ARS-${p.arsenalId}`,
-        sku: String(p.arsenalId),
-        nombre_producto: p.nombre,
-        categoria: p.categoria || 'Otros',
-        imagen_url: p.imagen || 'https://via.placeholder.com/300?text=Sin+Imagen',
-        precio_usd: p.precioUsd,
-        descripcion: p.descripcion || 'Producto importado del catálogo de Arsenal Sports.',
-        caracteristicas: p.url,
-      }))
-      .filter(p => !existingIds.has(p.id));
-
-    if (toAdd.length > 0) {
-      useAdminStore.getState().setLocalProducts([...base, ...toAdd]);
-    }
-    // Los que fallaron por error transitorio NO se marcan: se reintentan la próxima vez
-    useAdminStore.getState().setArsenalSeenIds([
-      ...useAdminStore.getState().arsenalSeenIds,
-      ...allNuevos.filter(n => !failedUrls.has(n.url)).map(n => n.id),
-    ]);
-    fetchProducts();
-
-    setArsenalSummary(
-      `Importado${toAdd.length !== 1 ? 's' : ''} ${toAdd.length} producto${toAdd.length !== 1 ? 's' : ''} nuevo${toAdd.length !== 1 ? 's' : ''} al catálogo.` +
-      (omitidos ? ` Omitidos (sin precio publicado o categoría sin equivalente): ${omitidos}.` : '') +
-      (errores ? ` ${errores} con errores de lectura se reintentarán en la próxima revisión.` : '')
-    );
-    setArsenalPhase('done');
   };
-
-  const setArsenalStatusProgress = (total: number) => setArsenalProgress({ done: 0, total });
 
   return (
     <div className="space-y-6 animate-fade-in relative">
