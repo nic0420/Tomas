@@ -68,7 +68,7 @@ export function BannersGrid() {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
       <CategoryBanner title="Airsoft" query="airsoft" />
       <CategoryBanner title="Paintball" query="paintball" />
-      <CategoryBanner title="Accesorios" query="accesorios" className="hidden lg:flex" />
+      <CategoryBanner title="Airgun" query="airgun" className="hidden lg:flex" />
     </div>
   );
 }

@@ -30,7 +30,7 @@ export const megaMenu: MegaMenuItem[] = [
       'CARABINAS DE AIRE',
       'CARGADORES',
       'PERDIGONES Y PROYECTILES',
-      'PIEZAS Y ACCESORIOS HPA / CO2'
+      'PIEZAS Y ACCESORIOS'
     ]
   },
   { 
@@ -82,7 +82,6 @@ export const megaMenu: MegaMenuItem[] = [
     name: 'OUTDOOR & SURVIVAL',
     filterName: 'Outdoor & Survival',
     subcategories: [
-      'ENERGÍA PORTÁTIL',
       'BARCOS Y CANOAS',
       'SOPORTES PARA BARCOS Y KAYAKS',
       'KAYAKS',
@@ -110,9 +109,7 @@ export const megaMenu: MegaMenuItem[] = [
       'BEACH TENNIS',
       'PICKLEBALL',
       'PÁDEL',
-      'PELOTAS',
-      'ACCESORIOS',
-      'SUP (STAND UP PADDLE)'
+      'ACCESORIOS'
     ]
   },
   {
@@ -121,8 +118,7 @@ export const megaMenu: MegaMenuItem[] = [
     subcategories: [
       'MARCADORES',
       'CARGADORES',
-      'ACCESORIOS',
-      'PIEZAS Y PARTES INTERNAS'
+      'ACCESORIOS'
     ]
   },
   {

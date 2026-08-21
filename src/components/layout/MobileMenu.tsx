@@ -70,7 +70,8 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
     }, 150);
   };
 
-  const handleSelectCategory = (filterName: string) => closeAndScroll(() => setSelectedCategory(filterName));
+  const handleSelectCategory = (filterName: string, subcategory?: string | null) =>
+    closeAndScroll(() => setSelectedCategory(filterName, subcategory ?? null));
   const handleViewAll = () => closeAndScroll(() => setSelectedCategory(null));
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -180,7 +181,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                       {menu.subcategories.map((sub) => (
                         <button
                           key={sub}
-                          onClick={() => handleSelectCategory(menu.filterName)}
+                          onClick={() => handleSelectCategory(menu.filterName, sub)}
                           className="w-full flex items-center justify-between px-6 py-2 text-left text-[13px] text-gray-600 hover:bg-gray-100 hover:text-brand-green transition-colors"
                         >
                           {sub}

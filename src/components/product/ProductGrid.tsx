@@ -7,13 +7,13 @@ import { searchProducts } from '../../utils/search';
 const ITEMS_PER_PAGE = 20;
 
 export function ProductGrid() {
-  const { products, isLoading, error, categories, searchQuery, sortBy, setSortBy, selectedCategory, setSelectedCategory } = useProductStore();
+  const { products, isLoading, error, categories, searchQuery, sortBy, setSortBy, selectedCategory, selectedSubcategory, setSelectedCategory } = useProductStore();
   const [currentPage, setCurrentPage] = useState(1);
 
   // Reset page when category or search or sort changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory, searchQuery, sortBy]);
+  }, [selectedCategory, selectedSubcategory, searchQuery, sortBy]);
 
   if (isLoading) {
     return (
@@ -38,14 +38,20 @@ export function ProductGrid() {
     return null;
   }
 
-  // 1. Filter by category
+  // 1. Filter by category / subcategory
   let displayProducts = products;
   if (selectedCategory) {
-    const searchCat = selectedCategory.toLowerCase();
-    displayProducts = displayProducts.filter(p => 
-      p.categoria.toLowerCase() === searchCat || 
-      p.nombre_producto.toLowerCase().includes(searchCat)
-    );
+    if (selectedSubcategory) {
+      displayProducts = displayProducts.filter(p =>
+        p.categoria === selectedCategory && p.subcategoria === selectedSubcategory
+      );
+    } else {
+      const searchCat = selectedCategory.toLowerCase();
+      displayProducts = displayProducts.filter(p =>
+        p.categoria.toLowerCase() === searchCat ||
+        p.nombre_producto.toLowerCase().includes(searchCat)
+      );
+    }
   }
 
   // 2. Filter by search query
@@ -62,7 +68,7 @@ export function ProductGrid() {
     displayProducts = [...displayProducts].sort((a, b) => a.nombre_producto.localeCompare(b.nombre_producto));
   }
 
-  const isFiltering = selectedCategory !== null || searchQuery.trim() !== '' || sortBy !== 'none';
+  const isFiltering = selectedCategory !== null || selectedSubcategory !== null || searchQuery.trim() !== '' || sortBy !== 'none';
 
   // ==== VISTA PRINCIPAL (Sin filtros activos) ====
   if (!isFiltering) {
@@ -117,10 +123,10 @@ export function ProductGrid() {
         <h3 className="text-gray-600 font-bold mb-1">No se encontraron productos</h3>
         <p className="text-gray-400 text-sm">Intenta con otra búsqueda o categoría.</p>
         {(searchQuery || selectedCategory) && (
-          <button 
+          <button
             onClick={() => {
               useProductStore.getState().setSearchQuery('');
-              setSelectedCategory(null);
+              setSelectedCategory(null, null);
             }}
             className="mt-4 text-brand-green font-bold hover:underline"
           >
@@ -136,9 +142,17 @@ export function ProductGrid() {
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 border-b border-gray-200 pb-4 gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
+            {selectedSubcategory && (
+              <button
+                onClick={() => setSelectedCategory(selectedCategory, null)}
+                className="text-brand-green hover:underline uppercase tracking-wider text-xs font-bold"
+              >
+                Ver todo en {selectedCategory}
+              </button>
+            )}
             {selectedCategory && (
-              <button 
-                onClick={() => setSelectedCategory(null)}
+              <button
+                onClick={() => setSelectedCategory(null, null)}
                 className="text-brand-green hover:underline uppercase tracking-wider text-xs font-bold"
               >
                 Volver a todos
@@ -146,7 +160,11 @@ export function ProductGrid() {
             )}
           </div>
           <h2 className="text-2xl md:text-3xl font-black text-brand-dark uppercase tracking-wide">
-            {searchQuery ? `Resultados para "${searchQuery}"` : selectedCategory || 'TODOS LOS PRODUCTOS'}
+            {searchQuery
+              ? `Resultados para "${searchQuery}"`
+              : selectedSubcategory
+                ? selectedSubcategory
+                : selectedCategory || 'TODOS LOS PRODUCTOS'}
           </h2>
           <span className="text-sm text-gray-500 font-medium">
             Mostrando {currentProducts.length} de {displayProducts.length} productos

@@ -3,6 +3,7 @@ import Papa from "papaparse";
 import { GOOGLE_SHEETS_CSV_URL } from "../config/constants";
 import type { Product } from "./useCartStore";
 import { useAdminStore } from "./useAdminStore";
+import { classifySubcategory } from "../utils/subcategories";
 
 const CATEGORY_TRANSLATIONS: Record<string, string> = {
   "Armas de Pressão": "Armas de Aire Comprimido",
@@ -44,12 +45,13 @@ interface ProductState {
   searchQuery: string;
   sortBy: string;
   selectedCategory: string | null;
+  selectedSubcategory: string | null;
   fetchProducts: () => Promise<void>;
   fetchDolarBlue: () => Promise<void>;
   setSelectedProduct: (product: Product | null) => void;
   setSearchQuery: (query: string) => void;
   setSortBy: (sort: string) => void;
-  setSelectedCategory: (category: string | null) => void;
+  setSelectedCategory: (category: string | null, subcategory?: string | null) => void;
 }
 
 export const useProductStore = create<ProductState>((set) => ({
@@ -63,11 +65,13 @@ export const useProductStore = create<ProductState>((set) => ({
   searchQuery: '',
   sortBy: 'none',
   selectedCategory: null,
+  selectedSubcategory: null,
 
   setSearchQuery: (query) => set({ searchQuery: query }),
   setSortBy: (sort) => set({ sortBy: sort }),
   setSelectedProduct: (product) => set({ selectedProduct: product }),
-  setSelectedCategory: (category) => set({ selectedCategory: category, selectedProduct: null, searchQuery: '' }),
+  setSelectedCategory: (category, subcategory = null) =>
+    set({ selectedCategory: category, selectedSubcategory: subcategory ?? null, selectedProduct: null, searchQuery: '' }),
 
   fetchDolarBlue: async () => {
     try {
@@ -104,10 +108,14 @@ export const useProductStore = create<ProductState>((set) => ({
       };
       
       if (localProducts && localProducts.length > 0) {
-        const translatedLocal = localProducts.map(p => ({
-          ...p,
-          categoria: translateCategory(p.categoria),
-        }));
+        const translatedLocal = localProducts.map(p => {
+          const categoria = translateCategory(p.categoria);
+          return {
+            ...p,
+            categoria,
+            subcategoria: classifySubcategory(categoria, p.nombre_producto),
+          };
+        });
         
         const { visible, categories, allCategories } = filterHidden(translatedLocal);
         set({ 
@@ -128,11 +136,13 @@ export const useProductStore = create<ProductState>((set) => ({
 
           rawData.forEach(row => {
             if (row.id && row.nombre_producto) {
+              const categoria = translateCategory(row.categoria || "Otros");
               const product: Product = {
                 id: row.id,
                 sku: row.sku || "",
                 nombre_producto: row.nombre_producto,
-                categoria: translateCategory(row.categoria || "Otros"),
+                categoria,
+                subcategoria: classifySubcategory(categoria, row.nombre_producto),
                 imagen_url: row.imagen_url || "https://via.placeholder.com/150",
                 precio_usd: parseFloat(row.precio_usd) || 0,
                 descripcion: row.descripcion || "Descripción no disponible.",

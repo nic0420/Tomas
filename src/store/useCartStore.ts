@@ -6,6 +6,7 @@ export interface Product {
   sku?: string;
   nombre_producto: string;
   categoria: string;
+  subcategoria?: string | null;
   imagen_url: string;
   precio_usd: number;
   descripcion?: string;

@@ -12,8 +12,8 @@ export function CategoryNav() {
 
   const visibleMenu = megaMenu.filter(menu => !hiddenCategories.includes(menu.filterName));
 
-  const handleCategorySelect = (catName: string) => {
-    setSelectedCategory(catName);
+  const handleCategorySelect = (catName: string, subcategory?: string | null) => {
+    setSelectedCategory(catName, subcategory ?? null);
     setIsMainDropdownOpen(false);
     setActiveMenu(null);
     setTimeout(() => {
@@ -92,7 +92,7 @@ export function CategoryNav() {
                       {menu.subcategories.map((sub, idx) => (
                         <button
                           key={idx}
-                          onClick={() => handleCategorySelect(menu.filterName || menu.name)}
+                          onClick={() => handleCategorySelect(menu.filterName || menu.name, sub)}
                           className="text-left text-gray-500 hover:text-brand-green font-medium text-[13px] md:text-xs tracking-wide transition-colors py-1 md:py-0"
                         >
                           {sub}
