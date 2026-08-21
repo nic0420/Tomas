@@ -5,6 +5,7 @@ import { Search, Upload, Edit, ChevronLeft, ChevronRight, Save, X, RefreshCw, Pl
 import type { Product } from '../../store/useCartStore';
 import Papa from 'papaparse';
 import { searchProducts } from '../../utils/search';
+import { classifySubcategory } from '../../utils/subcategories';
 
 interface ArsenalNuevo { id: number; url: string; }
 interface ArsenalProduct {
@@ -310,6 +311,7 @@ export function ProductsAdmin() {
           sku: String(p.arsenalId),
           nombre_producto: p.nombre,
           categoria: p.categoria || 'Otros',
+          subcategoria: classifySubcategory(p.categoria || 'Otros', p.nombre),
           imagen_url: p.imagen || 'https://via.placeholder.com/300?text=Sin+Imagen',
           precio_usd: p.precioUsd,
           descripcion: p.descripcion || 'Producto importado del catálogo de Arsenal Sports.',
