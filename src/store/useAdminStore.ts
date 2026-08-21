@@ -29,7 +29,8 @@ interface AdminState {
   localProducts: Product[] | null;
   hiddenCategories: string[];
   isLoadingOrders: boolean;
-  
+  arsenalSeenIds: number[];
+
   fetchOrders: () => Promise<void>;
   updateOrderStatus: (orderId: string, status: Order['status']) => Promise<void>;
   setCustomDolarBlue: (rate: number | null) => void;
@@ -40,6 +41,7 @@ interface AdminState {
   toggleCategoryVisibility: (category: string) => void;
   setCategoryVisibility: (category: string, hidden: boolean) => void;
   showAllCategories: () => void;
+  setArsenalSeenIds: (ids: number[]) => void;
 }
 
 export const useAdminStore = create<AdminState>()(
@@ -50,6 +52,7 @@ export const useAdminStore = create<AdminState>()(
       localProducts: null,
       hiddenCategories: [],
       isLoadingOrders: false,
+      arsenalSeenIds: [],
 
       fetchOrders: async () => {
         set({ isLoadingOrders: true });
@@ -124,6 +127,8 @@ export const useAdminStore = create<AdminState>()(
       }),
 
       showAllCategories: () => set({ hiddenCategories: [] }),
+
+      setArsenalSeenIds: (ids) => set({ arsenalSeenIds: ids }),
     }),
     {
       name: 'tomas-admin-storage',

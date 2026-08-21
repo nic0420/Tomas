@@ -1,13 +1,27 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAdminStore } from '../../store/useAdminStore';
 import { useProductStore } from '../../store/useProductStore';
-import { Search, Upload, Edit, ChevronLeft, ChevronRight, Save, X, RefreshCw, Plus, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Search, Upload, Edit, ChevronLeft, ChevronRight, Save, X, RefreshCw, Plus, Trash2, Eye, EyeOff, Radar } from 'lucide-react';
 import type { Product } from '../../store/useCartStore';
 import Papa from 'papaparse';
 import { searchProducts } from '../../utils/search';
 
+interface ArsenalNuevo { id: number; url: string; }
+interface ArsenalProduct {
+  arsenalId: number;
+  url: string;
+  nombre: string;
+  precioUsd: number;
+  imagen: string;
+  categoria: string | null;
+  descripcion?: string;
+}
+type ArsenalPhase = 'idle' | 'checking' | 'ready' | 'importing' | 'done';
+
+const ARSENAL_BATCH = 8;
+
 export function ProductsAdmin() {
-  const { localProducts, setLocalProducts, updateProduct, addProduct, deleteProduct, hiddenCategories, toggleCategoryVisibility, showAllCategories } = useAdminStore();
+  const { localProducts, setLocalProducts, updateProduct, addProduct, deleteProduct, hiddenCategories, toggleCategoryVisibility, showAllCategories, arsenalSeenIds, setArsenalSeenIds } = useAdminStore();
   const { products, fetchProducts, allCategories } = useProductStore();
   
   useEffect(() => {
@@ -25,6 +39,14 @@ export function ProductsAdmin() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [editForm, setEditForm] = useState<Partial<Product>>({});
   const [isCreating, setIsCreating] = useState(false);
+
+  // Arsenal Scraper State
+  const [arsenalPhase, setArsenalPhase] = useState<ArsenalPhase>('idle');
+  const [arsenalResult, setArsenalResult] = useState<{ primeraVez: boolean; totalArsenal: number; totalNuevos: number; nuevos: ArsenalNuevo[] } | null>(null);
+  const [arsenalPreview, setArsenalPreview] = useState<ArsenalProduct[]>([]);
+  const [arsenalProgress, setArsenalProgress] = useState({ done: 0, total: 0 });
+  const [arsenalSummary, setArsenalSummary] = useState('');
+  const [arsenalError, setArsenalError] = useState('');
 
   const ITEMS_PER_PAGE = 10;
 
@@ -180,6 +202,135 @@ export function ProductsAdmin() {
     }
   };
 
+  // ================= ARSENAL SCRAPER =================
+
+  const closeArsenalModal = () => {
+    setArsenalPhase('idle');
+    setArsenalResult(null);
+    setArsenalPreview([]);
+    setArsenalSummary('');
+    setArsenalError('');
+  };
+
+  const handleArsenalCheck = async () => {
+    setArsenalPhase('checking');
+    setArsenalError('');
+    setArsenalSummary('');
+    setArsenalPreview([]);
+    try {
+      const res = await fetch('/api/arsenal-check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ knownIds: arsenalSeenIds }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      setArsenalResult(data);
+
+      if (data.primeraVez) {
+        // Primera ejecución: registra el catálogo actual como base sin importar nada
+        setArsenalSeenIds((data.nuevos as ArsenalNuevo[]).map(n => n.id));
+        setArsenalSummary(`Catálogo base registrado: ${data.totalArsenal} productos publicados en Arsenal Sports. Desde ahora, cada revisión detectará automáticamente solo los productos nuevos que suban.`);
+        setArsenalPhase('done');
+        return;
+      }
+
+      if (data.totalNuevos === 0) {
+        setArsenalSummary(`Sin novedades. Arsenal tiene ${data.totalArsenal} productos publicados y ya están todos registrados.`);
+        setArsenalPhase('done');
+        return;
+      }
+
+      // Preview con los primeros productos nuevos
+      const previewUrls = (data.nuevos as ArsenalNuevo[]).slice(0, ARSENAL_BATCH).map(n => n.url);
+      const sres = await fetch('/api/arsenal-scrape', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ urls: previewUrls }),
+      });
+      const sdata = await sres.json();
+      if (!sres.ok) throw new Error(sdata.error || `HTTP ${sres.status}`);
+      setArsenalPreview(sdata.products || []);
+      setArsenalPhase('ready');
+    } catch (err) {
+      setArsenalError(err instanceof Error ? err.message : 'Error desconocido revisando Arsenal.');
+      setArsenalPhase('idle');
+    }
+  };
+
+  const handleArsenalImport = async () => {
+    if (!arsenalResult) return;
+    const allNuevos = arsenalResult.nuevos;
+    setArsenalStatusProgress(allNuevos.length);
+    setArsenalPhase('importing');
+
+    const collected: ArsenalProduct[] = [];
+    let omitidos = 0;
+    let errores = 0;
+
+    for (let i = 0; i < allNuevos.length; i += ARSENAL_BATCH) {
+      const batch = allNuevos.slice(i, i + ARSENAL_BATCH);
+      try {
+        const res = await fetch('/api/arsenal-scrape', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ urls: batch.map(b => b.url) }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          collected.push(...(data.products || []));
+          omitidos += data.omitidos || 0;
+          errores += (data.errors || []).length;
+        } else {
+          errores += batch.length;
+        }
+      } catch {
+        errores += batch.length;
+      }
+      setArsenalProgress({ done: Math.min(i + ARSENAL_BATCH, allNuevos.length), total: allNuevos.length });
+    }
+
+    // Activar modo local si hace falta (snapshot del catálogo actual)
+    let base = useAdminStore.getState().localProducts;
+    if (!base) {
+      base = useProductStore.getState().products;
+      useAdminStore.getState().setLocalProducts(base);
+    }
+
+    const existingIds = new Set(base.map(p => p.id));
+    const toAdd: Product[] = collected
+      .filter(p => p.nombre && p.precioUsd > 0)
+      .map(p => ({
+        id: `ARS-${p.arsenalId}`,
+        sku: String(p.arsenalId),
+        nombre_producto: p.nombre,
+        categoria: p.categoria || 'Otros',
+        imagen_url: p.imagen || 'https://via.placeholder.com/300?text=Sin+Imagen',
+        precio_usd: p.precioUsd,
+        descripcion: p.descripcion || 'Producto importado del catálogo de Arsenal Sports.',
+        caracteristicas: p.url,
+      }))
+      .filter(p => !existingIds.has(p.id));
+
+    if (toAdd.length > 0) {
+      useAdminStore.getState().setLocalProducts([...base, ...toAdd]);
+    }
+    useAdminStore.getState().setArsenalSeenIds([
+      ...useAdminStore.getState().arsenalSeenIds,
+      ...allNuevos.map(n => n.id),
+    ]);
+    fetchProducts();
+
+    setArsenalSummary(
+      `Importados ${toAdd.length} productos nuevos al catálogo.` +
+      (omitidos ? ` Omitidos por categoría sin equivalente: ${omitidos}.` : '') +
+      (errores ? ` Con errores de lectura: ${errores}.` : '')
+    );
+    setArsenalPhase('done');
+  };
+
+  const setArsenalStatusProgress = (total: number) => setArsenalProgress({ done: 0, total });
+
   return (
     <div className="space-y-6 animate-fade-in relative">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -198,7 +349,15 @@ export function ProductsAdmin() {
               Restaurar Original
             </button>
           )}
-          <button 
+          <button
+            onClick={handleArsenalCheck}
+            disabled={arsenalPhase === 'checking' || arsenalPhase === 'importing'}
+            className="bg-brand-gold text-white px-6 py-2 rounded-lg font-bold uppercase tracking-widest text-sm hover:bg-yellow-600 transition-colors flex items-center gap-2 shadow-lg disabled:opacity-60 disabled:cursor-wait"
+          >
+            <Radar size={18} className={arsenalPhase === 'checking' ? 'animate-spin' : ''} />
+            {arsenalPhase === 'checking' ? 'Revisando...' : 'Revisar Novedades Arsenal'}
+          </button>
+          <button
             onClick={openCreateModal}
             className="bg-brand-green text-white px-6 py-2 rounded-lg font-bold uppercase tracking-widest text-sm hover:bg-brand-dark transition-colors flex items-center gap-2 shadow-lg"
           >
@@ -382,6 +541,99 @@ export function ProductsAdmin() {
           </div>
         )}
       </div>
+
+      {/* Arsenal Scraper Modal */}
+      {arsenalPhase !== 'idle' && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden animate-fade-in">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-brand-dark text-white">
+              <h3 className="font-black uppercase tracking-widest text-brand-gold flex items-center gap-3">
+                <Radar size={20} />
+                Novedades de Arsenal Sports
+              </h3>
+              {(arsenalPhase === 'done' || arsenalPhase === 'ready') && (
+                <button onClick={closeArsenalModal} className="text-gray-400 hover:text-white transition-colors">
+                  <X size={24} />
+                </button>
+              )}
+            </div>
+
+            <div className="p-6 space-y-4">
+              {arsenalPhase === 'checking' && (
+                <div className="py-10 text-center">
+                  <Radar size={40} className="mx-auto text-brand-gold animate-pulse mb-4" />
+                  <p className="font-bold text-gray-700 uppercase tracking-widest text-sm">Revisando el catálogo de Arsenal...</p>
+                  <p className="text-gray-400 text-xs mt-2">Descargando y comparando su listado completo. Puede tardar unos segundos.</p>
+                </div>
+              )}
+
+              {arsenalPhase === 'ready' && arsenalResult && (
+                <>
+                  <div className="bg-brand-green/10 border-l-4 border-brand-green p-4 rounded-r-lg">
+                    <p className="font-black text-brand-dark">
+                      {arsenalResult.totalNuevos} producto{arsenalResult.totalNuevos !== 1 ? 's' : ''} nuevo{arsenalResult.totalNuevos !== 1 ? 's' : ''} en Arsenal
+                    </p>
+                    <p className="text-sm text-gray-600 font-medium mt-1">
+                      Arsenal publica {arsenalResult.totalArsenal} productos en total. Vista previa de los primeros {arsenalPreview.length}:
+                    </p>
+                  </div>
+                  <div className="max-h-64 overflow-y-auto divide-y divide-gray-100 border border-gray-100 rounded-lg">
+                    {arsenalPreview.map(p => (
+                      <div key={p.arsenalId} className="flex items-center gap-3 p-3">
+                        <img src={p.imagen} alt="" className="w-12 h-12 object-contain bg-white border border-gray-100 rounded" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-gray-800 truncate">{p.nombre}</p>
+                          <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">{p.categoria || 'Sin categoría'}</span>
+                        </div>
+                        <span className="font-black text-brand-green whitespace-nowrap">U$S {p.precioUsd.toFixed(2)}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    onClick={handleArsenalImport}
+                    className="w-full bg-brand-green text-white font-black py-3 rounded-lg hover:bg-brand-dark transition-colors uppercase tracking-widest shadow-lg"
+                  >
+                    Importar los {arsenalResult.totalNuevos} productos nuevos
+                  </button>
+                </>
+              )}
+
+              {arsenalPhase === 'importing' && (
+                <div className="py-10 text-center">
+                  <RefreshCw size={40} className="mx-auto text-brand-gold animate-spin mb-4" />
+                  <p className="font-bold text-gray-700 uppercase tracking-widest text-sm">
+                    Importando {arsenalProgress.done} de {arsenalProgress.total}...
+                  </p>
+                  <div className="mt-4 h-3 bg-gray-100 rounded-full overflow-hidden mx-auto max-w-sm">
+                    <div
+                      className="h-full bg-brand-green transition-all duration-300"
+                      style={{ width: `${arsenalProgress.total ? (arsenalProgress.done / arsenalProgress.total) * 100 : 0}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {arsenalPhase === 'done' && (
+                <div className="py-6 text-center">
+                  <p className="text-gray-700 font-medium">{arsenalSummary}</p>
+                  <button
+                    onClick={closeArsenalModal}
+                    className="mt-6 px-8 py-2 bg-brand-green text-white font-black rounded-lg hover:bg-brand-dark transition-colors uppercase tracking-widest text-xs"
+                  >
+                    Entendido
+                  </button>
+                </div>
+              )}
+
+              {arsenalError && (
+                <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg text-red-700 font-medium text-sm">
+                  {arsenalError}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Edit Modal */}
       {editingProduct && (
