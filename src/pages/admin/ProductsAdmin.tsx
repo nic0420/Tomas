@@ -8,6 +8,7 @@ import { searchProducts } from '../../utils/search';
 
 interface ArsenalNuevo { id: number; url: string; }
 interface ArsenalProduct {
+  urlId: number;
   arsenalId: number;
   url: string;
   nombre: string;
@@ -303,9 +304,9 @@ export function ProductsAdmin() {
 
       const existingIds = new Set(base.map(p => p.id));
       const toAdd: Product[] = collected
-        .filter(p => p.nombre && p.precioUsd > 0)
+        .filter(p => p.nombre && p.precioUsd > 0 && p.urlId > 0)
         .map(p => ({
-          id: `ARS-${p.arsenalId}`,
+          id: `ARS-${p.urlId}`,
           sku: String(p.arsenalId),
           nombre_producto: p.nombre,
           categoria: p.categoria || 'Otros',
@@ -591,7 +592,7 @@ export function ProductsAdmin() {
                       </p>
                     )}
                     {arsenalPreview.map(p => (
-                      <div key={p.arsenalId} className="flex items-center gap-3 p-3">
+                      <div key={p.urlId} className="flex items-center gap-3 p-3">
                         <img src={p.imagen} alt="" className="w-12 h-12 object-contain bg-white border border-gray-100 rounded" />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-bold text-gray-800 truncate">{p.nombre}</p>

@@ -97,9 +97,14 @@ export async function scrapeArsenalProduct(url) {
   }
   if (deptoId !== null) categoria = DEPT_MAP[deptoId] || null;
 
+  // El productID/sku interno de Arsenal NO coincide con el ID de la URL del
+  // sitemap (p. ej. url -8345.html tiene productID 269216). Se devuelven ambos:
+  // urlId como clave de dedup y arsenalId como SKU visible.
+  const urlId = Number(url.match(/-(\d+)\.html$/)?.[1]) || 0;
   return {
     omitido: false,
-    arsenalId: Number(data.productID) || Number(url.match(/-(\d+)\.html$/)?.[1]) || 0,
+    urlId,
+    arsenalId: Number(data.productID) || urlId,
     url,
     nombre,
     precioUsd,
